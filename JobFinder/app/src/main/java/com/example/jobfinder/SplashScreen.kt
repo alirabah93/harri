@@ -12,8 +12,7 @@ class SplashScreen : AppCompatActivity() {
         setContentView(R.layout.activity_splash_screen)
 
 //      the following handler display the splash screen at the app lunching for 3 seconds
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
