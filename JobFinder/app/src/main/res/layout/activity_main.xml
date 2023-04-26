@@ -1,18 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="16dp"
+        tools:context=".MainActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="82dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="32dp"
+            android:contentDescription="@string/logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_launcher_foreground" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/title"
+            android:textColor="#000000"
+            android:textSize="40sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageView" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/intro_description"
+            android:textAlignment="center"
+            android:textColor="#9ca5bf"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            tools:ignore="TextContrastCheck" />
+
+        <EditText
+            android:id="@+id/user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:background="@android:color/transparent"
+            android:hint="@string/name"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:textColor="#868687"
+            app:layout_constraintStart_toStartOf="@id/description"
+            app:layout_constraintTop_toBottomOf="@id/description"
+            tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
+
+        <EditText
+            android:id="@+id/email_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/transparent"
+            android:hint="@string/email_address"
+            android:importantForAutofill="no"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp"
+            android:textColor="#868687"
+            app:layout_constraintStart_toStartOf="@id/user_name"
+            app:layout_constraintTop_toBottomOf="@id/user_name"
+            tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/transparent"
+            android:hint="@string/password"
+            android:importantForAutofill="no"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:textColor="#868687"
+            app:layout_constraintStart_toStartOf="@id/email_address"
+            app:layout_constraintTop_toBottomOf="@id/email_address"
+            tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
+
+        <CheckBox
+            android:id="@+id/terms_conditions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:checked="false"
+            android:text="@string/terms"
+            android:textColor="#9ca5bf"
+            app:layout_constraintStart_toStartOf="@id/password"
+            app:layout_constraintTop_toBottomOf="@id/password"
+            tools:ignore="VisualLintButtonSize" />
+
+        <Button
+            android:id="@+id/create_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:background="@drawable/button_shape"
+            android:enabled="false"
+            android:text="@string/create"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/have_account"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/terms_conditions"
+            tools:ignore="DuplicateSpeakableTextCheck,VisualLintButtonSize" />
+
+        <TextView
+            android:id="@+id/have_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/sign_in"
+            android:textColor="#9ca5bf"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/create_button" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
