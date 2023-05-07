@@ -1,8 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.JobFinder" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.JobFinderTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/logo_color</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSecondary">@color/splashScreenBackground</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorOnSecondary</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
     </style>
 
     <style name="Theme.JobFinder" parent="Base.Theme.JobFinder" />
