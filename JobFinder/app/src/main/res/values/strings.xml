@@ -3,4 +3,14 @@
     <string name="logoSplashScreen">JobFinder</string>
     <string name="titleSplashScreen">JobFinder</string>
     <string name="descriptionSplashScreen">Explore your dream jobs</string>
+    <string name="name">Name</string>
+    <string name="email_address">Email</string>
+    <string name="password">Password</string>
+    <string name="terms">I agree with our <font color="#4f62da">Terms</font> and <font color="#4f62da">Conditions</font></string>
+    <string name="create">Create Account</string>
+    <string name="intro_description">Hello, You can start using the application after sign up</string>
+    <string name="title">Create Account</string>
+    <string name="logo">LOGO</string>
+    <string name="sign_in">Already have an account? <font color="#4f62da">Sign in</font></string>
+
 </resources>
