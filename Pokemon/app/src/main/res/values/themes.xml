@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.Pokemon" parent="Base.Theme.Pokemon" />
+
+    <style name="Theme.Pokemon.Splash" parent="Base.Theme.Pokemon">
+        <item name="colorPrimary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+    </style>
 </resources>
