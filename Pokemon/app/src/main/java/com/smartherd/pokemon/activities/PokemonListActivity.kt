@@ -5,12 +5,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.smartherd.pokemon.R
-import com.smartherd.pokemon.databinding.ActivityMainBinding
+import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
 import com.smartherd.pokemon.helpers.PokemonAdapter
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonListResponse
-import com.smartherd.pokemon.models.PokemonType
 import com.smartherd.pokemon.services.PokemonService
 import com.smartherd.pokemon.services.ServiceBuilder
 import retrofit2.Call
@@ -20,15 +18,17 @@ import retrofit2.Response
 
 class PokemonListActivity : AppCompatActivity() {
 
+
     private lateinit var recyclerView: RecyclerView
 
-//    private lateinit var binding = ActivityMainBinding
+    private lateinit var binding: ActivityPokemonListBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pokemon_list)
+        binding = ActivityPokemonListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        recyclerView = findViewById(R.id.pokemon_recycler_view)
+        recyclerView = binding.pokemonRecyclerView
 
     }
 
@@ -65,5 +65,6 @@ class PokemonListActivity : AppCompatActivity() {
                 Toast.makeText(this@PokemonListActivity, "Error Occurred" + t.toString(), Toast.LENGTH_LONG).show()
             }
         })
+
     }
 }

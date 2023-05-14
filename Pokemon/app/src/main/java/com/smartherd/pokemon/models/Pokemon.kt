@@ -9,8 +9,6 @@ data class PokemonListResponse(
 
 data class Pokemon(
     val name: String,
-    val url: String,
-    val types: List<PokemonType>
+    val url: String
 )
 
-data class PokemonType(val typeName: String)
