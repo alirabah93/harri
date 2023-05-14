@@ -1,7 +1,8 @@
-package com.smartherd.pokemon
+package com.smartherd.pokemon.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.smartherd.pokemon.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
