@@ -1,6 +1,7 @@
 package com.smartherd.pokemon.helpers
 
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -13,8 +14,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.smartherd.pokemon.R
+import com.smartherd.pokemon.activities.PokemonDetailActivity
 import com.smartherd.pokemon.activities.PokemonListActivity
 import com.smartherd.pokemon.models.Pokemon
+import com.smartherd.pokemon.models.PokemonListResponse
 import com.smartherd.pokemon.models.PokemonTypeSlot
 import com.smartherd.pokemon.services.PokemonService
 import com.smartherd.pokemon.services.ServiceBuilder
@@ -22,49 +25,38 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
-class PokemonAdapter(private val pokemonList: List<Pokemon>) :
-    RecyclerView.Adapter<PokemonAdapter.ViewHolder>() {
-
+class PokemonAdapter(
+    private var pokemonList: List<Pokemon>
+) : RecyclerView.Adapter<PokemonAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
+        // Inflate the list item layout
         val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
+        // Bind the Pokemon data to the ViewHolder
         holder.bindPokemon(pokemonList[position])
 
-        val pokemonImageUrl =
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${position + 1}.png"
-        Glide.with(holder.itemView.context)
-            .load(pokemonImageUrl)
-            .into(holder.pokemonImage)
-
-//        holder.itemView.setOnClickListener { v ->
-//            val context = v.context
-//            val intent = Intent(context, PokemonDetailActivity::class.java)
-////            intent.putExtra(PokemonDetailActivity.ARG_ITEM_ID, holder.pokemon!!.id)
-//
-//            context.startActivity(intent)
-//        }
+        // Set click listener for opening Pokemon detail activity
+        holder.itemView.setOnClickListener { v ->
+            val context = v.context
+            val intent = Intent(context, PokemonDetailActivity::class.java)
+            intent.putExtra(PokemonDetailActivity.ARG_ITEM_NAME, holder.pokemon?.name)
+            context.startActivity(intent)
+        }
     }
-
     override fun getItemCount(): Int {
+        val size = pokemonList.size
         return pokemonList.size
     }
-
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        val pokemonImage: ImageView = itemView.findViewById(R.id.pokemon_image)
+        private val pokemonImage: ImageView = itemView.findViewById(R.id.pokemon_image)
         private val pokemonName: TextView = itemView.findViewById(R.id.pokemon_name)
         private val pokemonType: TextView = itemView.findViewById(R.id.pokemon_type)
         var pokemon: Pokemon? = null
-        var context: Context = itemView.context
-
-
+        private var context: Context = itemView.context
         fun bindPokemon(pokemon: Pokemon) {
 
             this.pokemon = pokemon
@@ -74,6 +66,12 @@ class PokemonAdapter(private val pokemonList: List<Pokemon>) :
             val regex = Regex("""/pokemon/(\d+)/""")
             val matchResult = regex.find(pokemonUrl)
             val pokemonId = matchResult?.groupValues?.get(1)
+
+            val pokemonImageUrl =
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokemonId.png"
+            Glide.with(itemView.context)
+                .load(pokemonImageUrl)
+                .into(pokemonImage)
 
             val pokemonService: PokemonService =
                 ServiceBuilder.buildService(PokemonService::class.java)
@@ -101,10 +99,6 @@ class PokemonAdapter(private val pokemonList: List<Pokemon>) :
                     }
                 })
             }
-
-            val intent = Intent(context, PokemonListActivity::class.java)
-            intent.putExtra("POKEMON_ID", pokemonId)
-
         }
 
         private fun setPokemonTypeColor(
@@ -135,4 +129,13 @@ class PokemonAdapter(private val pokemonList: List<Pokemon>) :
             imageView.setBackgroundColor(color)
         }
     }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun addItems(newItems: List<Pokemon>) {
+        val currentList = ArrayList(pokemonList)
+        currentList.addAll(newItems)
+        pokemonList = currentList
+        notifyDataSetChanged()
+    }
+
 }

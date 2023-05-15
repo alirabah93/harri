@@ -9,4 +9,8 @@ class PokemonDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pokemon_detail)
     }
+
+    companion object {
+        const val ARG_ITEM_NAME = "item_name"
+    }
 }
