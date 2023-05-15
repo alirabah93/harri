@@ -48,13 +48,12 @@ class PokemonAdapter(
         }
     }
     override fun getItemCount(): Int {
-        val size = pokemonList.size
         return pokemonList.size
     }
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val pokemonImage: ImageView = itemView.findViewById(R.id.pokemon_image)
         private val pokemonName: TextView = itemView.findViewById(R.id.pokemon_name)
-        private val pokemonType: TextView = itemView.findViewById(R.id.pokemon_type)
+//        private val pokemonType: TextView = itemView.findViewById(R.id.pokemon_type)
         var pokemon: Pokemon? = null
         private var context: Context = itemView.context
         fun bindPokemon(pokemon: Pokemon) {
@@ -87,7 +86,7 @@ class PokemonAdapter(
                         if (response.isSuccessful) {
                             val pokemonTypes = response.body()?.types
                             if (!pokemonTypes.isNullOrEmpty()) {
-                                pokemonType.text = pokemonTypes[0].type.name
+//                                pokemonType.text = pokemonTypes[0].type.name
                                 val pokemonTypeName = pokemonTypes[0].type.name
                                 setPokemonTypeColor(context, pokemonTypeName, pokemonImage)
                             }

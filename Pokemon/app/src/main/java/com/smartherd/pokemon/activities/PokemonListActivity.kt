@@ -2,10 +2,14 @@ package com.smartherd.pokemon.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
 import com.smartherd.pokemon.helpers.PokemonAdapter
 import com.smartherd.pokemon.models.Pokemon
@@ -23,7 +27,8 @@ class PokemonListActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var binding: ActivityPokemonListBinding
     private var limit = 20
-    private var currentPosition = -1
+    private var searchName = ""
+    private var currentCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,23 +46,44 @@ class PokemonListActivity : AppCompatActivity() {
                     // Load more data
                     val adapter = recyclerView.adapter as? PokemonAdapter
                     adapter?.itemCount?.let { itemCount ->
-                        loadMorePokemon(itemCount)
+                        println("this is the itemCount: $itemCount")
+                        currentCount = itemCount
+                        if(searchName.isEmpty()){
+                            loadPokemon(itemCount)
+                        }
                     }
                 }
             }
         })
+
+        val searchEditText = findViewById<EditText>(R.id.search_edit_text)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed for this implementation
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Not needed for this implementation
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val searchQuery = s.toString()
+                searchName = searchQuery
+                loadPokemon(null)
+            }
+        })
     }
-
-
     override fun onResume() {
         super.onResume()
         loadPokemon(0)
     }
-
-
-    private fun loadPokemon(offset: Int) {
+    private fun loadPokemon(offset: Int?) {
 
         val pokemonService: PokemonService = ServiceBuilder.buildService(PokemonService::class.java)
+
+        if(searchName.isNotEmpty()){
+            limit = Int.MAX_VALUE
+        }
         val requestCall: Call<PokemonListResponse> = pokemonService.getPokemonList(limit, offset)
 
         requestCall.enqueue(object : Callback<PokemonListResponse> {
@@ -67,8 +93,16 @@ class PokemonListActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     val pokemonResponse = response.body()!!
-                    val pokemonList: List<Pokemon> = pokemonResponse.results ?: emptyList()
-                    recyclerView.adapter = PokemonAdapter(pokemonList)
+                    val pokemonList: List<Pokemon> = pokemonResponse.results?.filter { pokemon ->
+                        pokemon.name.startsWith(searchName, ignoreCase = true)
+                    } ?: emptyList()
+
+                    if (currentCount >= limit) {
+                        val adapter = recyclerView.adapter as? PokemonAdapter
+                        adapter?.addItems(pokemonList)
+                    } else {
+                        recyclerView.adapter = PokemonAdapter(pokemonList)
+                    }
                 } else if (response.code() == 401) {
                     Toast.makeText(
                         this@PokemonListActivity,
@@ -94,39 +128,6 @@ class PokemonListActivity : AppCompatActivity() {
             }
         })
 
-    }
-
-    private fun loadMorePokemon(offset: Int) {
-        val pokemonService: PokemonService = ServiceBuilder.buildService(PokemonService::class.java)
-        val requestCall: Call<PokemonListResponse> = pokemonService.getPokemonList(limit, offset)
-
-        requestCall.enqueue(object : Callback<PokemonListResponse> {
-            override fun onResponse(call: Call<PokemonListResponse>, response: Response<PokemonListResponse>) {
-                if (response.isSuccessful) {
-                    val pokemonResponse = response.body()!!
-                    val pokemonList: List<Pokemon> = pokemonResponse.results ?: emptyList()
-
-                    // Append the new items to the existing list
-                    val adapter = recyclerView.adapter as? PokemonAdapter
-                    adapter?.addItems(pokemonList)
-                } else {
-                    Toast.makeText(
-                        this@PokemonListActivity,
-                        "Failed to retrieve items",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-
-            override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                Log.e("Failed Api", "Failed Api with error code: " + t.message)
-                Toast.makeText(
-                    this@PokemonListActivity,
-                    "Error Occurred" + t.toString(),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        })
     }
 
 }

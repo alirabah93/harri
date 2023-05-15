@@ -13,10 +13,11 @@ interface PokemonService {
 
     @GET("pokemon")
     fun getPokemonList(
-        @Query("limit") limit: Int,
-        @Query("offset") offset: Int
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null
     ): Call<PokemonListResponse>
 
     @GET("pokemon/{id}")
     fun getPokemonType(@Path("id") id: String?): Call<PokemonTypeSlot>
+
 }
