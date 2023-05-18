@@ -21,4 +21,6 @@
     <color name="dark">#705848</color>
     <color name="steel">#B8B8D0</color>
     <color name="fairy">#EE99AC</color>
+
+    <color name="backgroundColor">#48bb78</color>
 </resources>

@@ -19,34 +19,30 @@ object ServiceBuilder {
     private val logger = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
 
     //    Create a Custom Interceptor to apply Headers application wide
-    val headerInterceptor : Interceptor = object: Interceptor {
+    private val headerInterceptor: Interceptor = Interceptor { chain ->
+        var request: Request = chain.request()
 
-        override fun intercept(chain: Interceptor.Chain): Response {
+        request = request.newBuilder()
+            .addHeader("x-device-type", Build.DEVICE)
+            .addHeader("Accept-Language", Locale.getDefault().language)
+            .build()
 
-            var request: Request = chain.request()
-
-            request = request.newBuilder()
-                .addHeader("x-device-type", Build.DEVICE)
-                .addHeader("Accept-Language", Locale.getDefault().language)
-                .build()
-
-            return chain.proceed(request)
-        }
+        chain.proceed(request)
     }
 
     //    Create okHttp Client
-    private val okHttp : OkHttpClient.Builder = OkHttpClient.Builder()
+    private val okHttp: OkHttpClient.Builder = OkHttpClient.Builder()
         .callTimeout(5, TimeUnit.SECONDS)
         .addInterceptor(headerInterceptor)
         .addInterceptor(logger)
 
     //    Create Retrofit Builder
-    private val builder : Retrofit.Builder = Retrofit.Builder().baseUrl(URL)
+    private val builder: Retrofit.Builder = Retrofit.Builder().baseUrl(URL)
         .addConverterFactory(GsonConverterFactory.create())
         .client(okHttp.build())
 
     //    Create Retrofit Instance
-    private val retrofit : Retrofit = builder.build()
+    private val retrofit: Retrofit = builder.build()
 
     fun <T> buildService(serviceType: Class<T>): T {
         return retrofit.create(serviceType)

@@ -1,5 +1,6 @@
 package com.smartherd.pokemon.activities
 
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -37,7 +38,12 @@ class PokemonListActivity : AppCompatActivity() {
 
         recyclerView = binding.pokemonRecyclerView
 
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
+        val orientation = resources.configuration.orientation
+
+        val spanCount = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 4 else 2
+
+
+        recyclerView.layoutManager = GridLayoutManager(this, spanCount)
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
@@ -46,8 +52,7 @@ class PokemonListActivity : AppCompatActivity() {
                     // Load more data
                     val adapter = recyclerView.adapter as? PokemonAdapter
                     adapter?.itemCount?.let { itemCount ->
-                        println("this is the itemCount: $itemCount")
-                        if(searchName.isEmpty() && firstLoad){
+                        if (searchName.isEmpty() && firstLoad) {
                             loadPokemon(itemCount)
                         }
                     }
@@ -73,15 +78,17 @@ class PokemonListActivity : AppCompatActivity() {
             }
         })
     }
+
     override fun onResume() {
         super.onResume()
         loadPokemon(0)
     }
+
     private fun loadPokemon(offset: Int?) {
 
         val pokemonService: PokemonService = ServiceBuilder.buildService(PokemonService::class.java)
 
-        limit = if(searchName.isNotEmpty()){
+        limit = if (searchName.isNotEmpty()) {
             Int.MAX_VALUE
         } else {
             20
