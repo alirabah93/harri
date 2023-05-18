@@ -27,7 +27,7 @@
                             android:inputType="text"
                             android:maxLines="1"
                             android:singleLine="true"
-                            android:drawableStart="@drawable/ic_search"
+                            android:drawableStart="@drawable/baseline_search_24"
                             android:drawablePadding="8dp" />
 
                 </RelativeLayout>

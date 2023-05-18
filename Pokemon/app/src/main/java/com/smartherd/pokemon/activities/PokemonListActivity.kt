@@ -28,7 +28,7 @@ class PokemonListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPokemonListBinding
     private var limit = 20
     private var searchName = ""
-    private var currentCount = 0
+    private var firstLoad = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +47,7 @@ class PokemonListActivity : AppCompatActivity() {
                     val adapter = recyclerView.adapter as? PokemonAdapter
                     adapter?.itemCount?.let { itemCount ->
                         println("this is the itemCount: $itemCount")
-                        currentCount = itemCount
-                        if(searchName.isEmpty()){
+                        if(searchName.isEmpty() && firstLoad){
                             loadPokemon(itemCount)
                         }
                     }
@@ -69,6 +68,7 @@ class PokemonListActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 val searchQuery = s.toString()
                 searchName = searchQuery
+                firstLoad = false
                 loadPokemon(null)
             }
         })
@@ -81,8 +81,10 @@ class PokemonListActivity : AppCompatActivity() {
 
         val pokemonService: PokemonService = ServiceBuilder.buildService(PokemonService::class.java)
 
-        if(searchName.isNotEmpty()){
-            limit = Int.MAX_VALUE
+        limit = if(searchName.isNotEmpty()){
+            Int.MAX_VALUE
+        } else {
+            20
         }
         val requestCall: Call<PokemonListResponse> = pokemonService.getPokemonList(limit, offset)
 
@@ -97,11 +99,12 @@ class PokemonListActivity : AppCompatActivity() {
                         pokemon.name.startsWith(searchName, ignoreCase = true)
                     } ?: emptyList()
 
-                    if (currentCount >= limit) {
+                    if (firstLoad) {
                         val adapter = recyclerView.adapter as? PokemonAdapter
                         adapter?.addItems(pokemonList)
                     } else {
                         recyclerView.adapter = PokemonAdapter(pokemonList)
+                        firstLoad = true
                     }
                 } else if (response.code() == 401) {
                     Toast.makeText(
