@@ -1,4 +1,4 @@
-package com.smartherd.pokemon.activities
+package com.smartherd.pokemon.detail
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

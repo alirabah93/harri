@@ -18,10 +18,10 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".activities.PokemonDetailActivity"
+            android:name=".detail.PokemonDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.PokemonListActivity"
+            android:name=".list.PokemonListActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".list.MainActivity"
             android:exported="true">
         </activity>
     </application>

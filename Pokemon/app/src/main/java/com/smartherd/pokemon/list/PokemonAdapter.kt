@@ -1,4 +1,4 @@
-package com.smartherd.pokemon.helpers
+package com.smartherd.pokemon.list
 
 
 import android.annotation.SuppressLint
@@ -14,10 +14,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.smartherd.pokemon.R
-import com.smartherd.pokemon.activities.PokemonDetailActivity
-import com.smartherd.pokemon.activities.PokemonListActivity
+import com.smartherd.pokemon.detail.PokemonDetailActivity
 import com.smartherd.pokemon.models.Pokemon
-import com.smartherd.pokemon.models.PokemonListResponse
 import com.smartherd.pokemon.models.PokemonTypeSlot
 import com.smartherd.pokemon.services.PokemonService
 import com.smartherd.pokemon.services.ServiceBuilder

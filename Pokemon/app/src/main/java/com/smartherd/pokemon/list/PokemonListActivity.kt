@@ -1,4 +1,4 @@
-package com.smartherd.pokemon.activities
+package com.smartherd.pokemon.list
 
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
-import com.smartherd.pokemon.helpers.PokemonAdapter
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonListResponse
 import com.smartherd.pokemon.services.PokemonService
