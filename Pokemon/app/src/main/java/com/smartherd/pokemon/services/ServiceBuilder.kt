@@ -12,37 +12,33 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 object ServiceBuilder {
+    private const val BASE_URL = "https://pokeapi.co/api/v2/"
 
+    private val logger = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
 
-    private const val URL = "https://pokeapi.co/api/v2/"
-
-    private val logger = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
-
-    //    Create a Custom Interceptor to apply Headers application wide
-    private val headerInterceptor: Interceptor = Interceptor { chain ->
-        var request: Request = chain.request()
-
-        request = request.newBuilder()
+    private val headerInterceptor = Interceptor { chain ->
+        val request: Request = chain.request().newBuilder()
             .addHeader("x-device-type", Build.DEVICE)
             .addHeader("Accept-Language", Locale.getDefault().language)
             .build()
-
         chain.proceed(request)
     }
 
-    //    Create okHttp Client
-    private val okHttp: OkHttpClient.Builder = OkHttpClient.Builder()
-        .callTimeout(5, TimeUnit.SECONDS)
-        .addInterceptor(headerInterceptor)
-        .addInterceptor(logger)
+    private val okHttpBuilder = OkHttpClient.Builder().apply {
+        callTimeout(5, TimeUnit.SECONDS)
+        addInterceptor(headerInterceptor)
+        addInterceptor(logger)
+    }
 
-    //    Create Retrofit Builder
-    private val builder: Retrofit.Builder = Retrofit.Builder().baseUrl(URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .client(okHttp.build())
+    private val retrofitBuilder = Retrofit.Builder().apply {
+        baseUrl(BASE_URL)
+        addConverterFactory(GsonConverterFactory.create())
+        client(okHttpBuilder.build())
+    }
 
-    //    Create Retrofit Instance
-    private val retrofit: Retrofit = builder.build()
+    private val retrofit = retrofitBuilder.build()
 
     fun <T> buildService(serviceType: Class<T>): T {
         return retrofit.create(serviceType)
