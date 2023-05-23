@@ -1,9 +1,9 @@
 package com.smartherd.pokemon.list
 
 import android.content.Context
+import android.util.Log
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
-import com.smartherd.pokemon.R
+import android.widget.Toast
 import com.smartherd.pokemon.models.PokemonTypeSlot
 import com.smartherd.pokemon.services.PokemonService
 import com.smartherd.pokemon.services.ServiceBuilder
@@ -24,42 +24,36 @@ class PokemonTypeColorMapper(private val context: Context) {
                     call: Call<PokemonTypeSlot>,
                     response: Response<PokemonTypeSlot>
                 ) {
-                    if (response.isSuccessful) {
-                        response.body()?.types?.getOrNull(0)?.type?.name?.let { pokemonTypeName ->
-                            val color = getPokemonTypeColor(pokemonTypeName)
-                            imageView.setBackgroundColor(color)
-                        }
-                    }
+                    handleResponse(response, imageView)
                 }
 
                 override fun onFailure(call: Call<PokemonTypeSlot>, t: Throwable) {
-                    // Handle failure
+                    handleError(t)
                 }
             })
         }
     }
 
-    private fun getPokemonTypeColor(pokemonTypeName: String): Int {
-        val colorResId = when (pokemonTypeName) {
-            "fire" -> R.color.fire
-            "water" -> R.color.water
-            "grass" -> R.color.grass
-            "electric" -> R.color.electric
-            "ice" -> R.color.ice
-            "fighting" -> R.color.fighting
-            "poison" -> R.color.poison
-            "ground" -> R.color.ground
-            "flying" -> R.color.flying
-            "psychic" -> R.color.psychic
-            "bug" -> R.color.bug
-            "rock" -> R.color.rock
-            "ghost" -> R.color.ghost
-            "dragon" -> R.color.dragon
-            "dark" -> R.color.dark
-            "steel" -> R.color.steel
-            "fairy" -> R.color.fairy
-            else -> R.color.normal
+    private fun handleResponse(response: Response<PokemonTypeSlot>, imageView: ImageView) {
+        if (response.isSuccessful) {
+            val pokemonTypeName = response.body()?.types?.getOrNull(0)?.type?.name
+            pokemonTypeName?.let {
+                val color = PokemonTypeColor.getColor(it, context)
+                imageView.setBackgroundColor(color)
+            }
+        } else if (response.code() == 401) {
+            showErrorMessage("Your session has expired. Please Login again.")
+        } else {
+            showErrorMessage("Failed to retrieve items")
         }
-        return ContextCompat.getColor(context, colorResId)
+    }
+
+    private fun handleError(t: Throwable) {
+        Log.e("Failed Api", "Failed API with error code: ${t.message}")
+        showErrorMessage("Error Occurred: ${t.toString()}")
+    }
+
+    private fun showErrorMessage(message: String) {
+        Toast.makeText(context.applicationContext, message, Toast.LENGTH_LONG).show()
     }
 }
