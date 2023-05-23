@@ -42,9 +42,10 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     }
 
     private fun setupLayoutManager() {
-        val orientation = resources.configuration.orientation
-        val spanCount = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 4 else 2
-        binding.pokemonRecyclerView.layoutManager = GridLayoutManager(this, spanCount)
+        binding.pokemonRecyclerView.layoutManager = GridLayoutManager(
+            this,
+            resources.getInteger(R.integer.span_count)
+        )
     }
 
     private fun setupAdapter() {

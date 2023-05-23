@@ -50,6 +50,7 @@
             android:layout_height="match_parent"
             android:padding="16dp"
             android:scrollbars="vertical"
+            app:spanCount="@integer/span_count"
             tools:listitem="@layout/list_item" />
 
 
