@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.models.Pokemon
+import com.smartherd.pokemon.models.PokemonData
+import com.smartherd.pokemon.models.PokemonType
+import com.smartherd.pokemon.models.PokemonTypeColor
 
 class PokemonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val pokemonImage: ImageView = itemView.findViewById(R.id.pokemon_image)
@@ -15,21 +18,18 @@ class PokemonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val context: Context = itemView.context
     var pokemon: Pokemon? = null
 
-    fun bindPokemon(pokemon: Pokemon) {
+    fun bindPokemon(pokemon: PokemonData) {
+        val pokemonId = pokemon.id
         pokemonName.text = pokemon.name
-        val pokemonId = extractPokemonId(pokemon.url)
-        val pokemonImageUrl =
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokemonId.png"
+
+        val pokemonType = PokemonTypeColor.fromTypeName(pokemon.typeName)
+        val color = pokemonType.getColor(context)
+        pokemonImage.setBackgroundColor(color)
 
         Glide.with(context)
-            .load(pokemonImageUrl)
+            .load(pokemon.imageUrl)
             .into(pokemonImage)
 
-        PokemonTypeColorMapper(context).setPokemonTypeColor(pokemonId, pokemonImage)
     }
 
-    private fun extractPokemonId(pokemonUrl: String): String? {
-        val regex = Regex("""/pokemon/(\d+)/""")
-        return regex.find(pokemonUrl)?.groupValues?.get(1)
-    }
 }

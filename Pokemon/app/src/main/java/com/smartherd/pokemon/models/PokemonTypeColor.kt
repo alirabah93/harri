@@ -1,35 +1,37 @@
+package com.smartherd.pokemon.models
+
 import android.content.Context
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.smartherd.pokemon.R
 
-enum class PokemonTypeColor(private val colorResId: Int) {
-    FIRE(R.color.fire),
-    WATER(R.color.water),
-    GRASS(R.color.grass),
-    ELECTRIC(R.color.electric),
-    ICE(R.color.ice),
-    FIGHTING(R.color.fighting),
-    POISON(R.color.poison),
-    GROUND(R.color.ground),
-    FLYING(R.color.flying),
-    PSYCHIC(R.color.psychic),
-    BUG(R.color.bug),
-    ROCK(R.color.rock),
-    GHOST(R.color.ghost),
-    DRAGON(R.color.dragon),
-    DARK(R.color.dark),
-    STEEL(R.color.steel),
-    FAIRY(R.color.fairy),
-    NORMAL(R.color.normal);
+enum class PokemonTypeColor(private val typeName: String, @ColorRes private val colorRes: Int) {
+    FIRE("fire", R.color.fire),
+    WATER("water", R.color.water),
+    GRASS("grass", R.color.grass),
+    ELECTRIC("electric", R.color.electric),
+    ICE("ice", R.color.ice),
+    FIGHTING("fighting", R.color.fighting),
+    POISON("poison", R.color.poison),
+    GROUND("ground", R.color.ground),
+    FLYING("flying", R.color.flying),
+    PSYCHIC("psychic", R.color.psychic),
+    BUG("bug", R.color.bug),
+    ROCK("rock", R.color.rock),
+    GHOST("ghost", R.color.ghost),
+    DRAGON("dragon", R.color.dragon),
+    DARK("dark", R.color.dark),
+    STEEL("steel", R.color.steel),
+    FAIRY("fairy", R.color.fairy),
+    NORMAL("normal", R.color.normal);
 
     fun getColor(context: Context): Int {
-        return ContextCompat.getColor(context, colorResId)
+        return ContextCompat.getColor(context, colorRes)
     }
 
     companion object {
-        fun getColor(typeName: String, context: Context): Int {
-            return values().find { it.name.equals(typeName, ignoreCase = true) }?.getColor(context)
-                ?: ContextCompat.getColor(context, NORMAL.colorResId)
+        fun fromTypeName(typeName: String): PokemonTypeColor {
+            return values().find { it.typeName == typeName } ?: NORMAL
         }
     }
 }

@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.detail.PokemonDetailActivity
-import com.smartherd.pokemon.models.Pokemon
+import com.smartherd.pokemon.models.PokemonData
 
-class PokemonAdapter(private var pokemonList: List<Pokemon>) :
+class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     RecyclerView.Adapter<PokemonViewHolder>() {
 
     private var positionChangeListener: OnPositionChangeListener? = null
@@ -34,9 +34,10 @@ class PokemonAdapter(private var pokemonList: List<Pokemon>) :
         }
     }
 
+
     override fun getItemCount(): Int = pokemonList.size
 
-    fun addItems(newItems: List<Pokemon>) {
+    fun addItems(newItems: MutableList<PokemonData>) {
         pokemonList += newItems
         notifyDataSetChanged()
     }

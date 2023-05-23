@@ -18,6 +18,6 @@ interface PokemonService {
     ): Call<PokemonListResponse>
 
     @GET("pokemon/{id}")
-    fun getPokemonType(@Path("id") id: String?): Call<PokemonTypeSlot>
+    fun getPokemonType(@Path("id") id: Int): Call<PokemonTypeSlot>
 
 }

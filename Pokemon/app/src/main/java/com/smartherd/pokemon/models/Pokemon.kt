@@ -12,3 +12,10 @@ data class Pokemon(
     val url: String
 )
 
+data class PokemonData(
+    val name: String,
+    val id: Int,
+    val typeName: String,
+    val imageUrl: String
+)
+
