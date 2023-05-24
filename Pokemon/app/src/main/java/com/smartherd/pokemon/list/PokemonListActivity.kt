@@ -23,17 +23,9 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
         binding = ActivityPokemonListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        setupLayoutManager()
-        setupAdapter()
+        setupRecyclerView()
         setupSearchEditText()
-
-        pokemonLoader = PokemonLoader(
-            this,
-            binding.pokemonRecyclerView,
-            binding.progressBar,
-            binding.emptyErrorContainer
-        )
+        setupPokemonLoader()
     }
 
     override fun onResume() {
@@ -46,14 +38,9 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
         pokemonLoader.loadPokemon()
     }
 
-    private fun setupLayoutManager() {
-        binding.pokemonRecyclerView.layoutManager = GridLayoutManager(
-            this,
-            resources.getInteger(R.integer.span_count)
-        )
-    }
-
-    private fun setupAdapter() {
+    private fun setupRecyclerView() {
+        val spanCount = resources.getInteger(R.integer.span_count)
+        binding.pokemonRecyclerView.layoutManager = GridLayoutManager(this, spanCount)
         pokemonAdapter = PokemonAdapter(emptyList())
         binding.pokemonRecyclerView.adapter = pokemonAdapter
         pokemonAdapter.setOnPositionChangeListener(this)
@@ -77,4 +64,13 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
         })
     }
 
+    private fun setupPokemonLoader() {
+        pokemonLoader = PokemonLoader(
+            this,
+            binding.pokemonRecyclerView,
+            binding.progressBar,
+            binding.emptyTextView,
+            binding.errorTextView
+        )
+    }
 }

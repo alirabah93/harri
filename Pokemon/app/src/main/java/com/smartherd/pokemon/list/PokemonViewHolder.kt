@@ -9,7 +9,6 @@ import com.bumptech.glide.Glide
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonData
-import com.smartherd.pokemon.models.PokemonType
 import com.smartherd.pokemon.models.PokemonTypeColor
 
 class PokemonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -19,7 +18,6 @@ class PokemonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var pokemon: Pokemon? = null
 
     fun bindPokemon(pokemon: PokemonData) {
-        val pokemonId = pokemon.id
         pokemonName.text = pokemon.name
 
         val pokemonType = PokemonTypeColor.fromTypeName(pokemon.typeName)

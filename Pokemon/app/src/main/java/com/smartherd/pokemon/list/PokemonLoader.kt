@@ -26,7 +26,8 @@ class PokemonLoader(
     private val activity: AppCompatActivity,
     private val recyclerView: RecyclerView,
     private val progressBar: ProgressBar,
-    private val emptyErrorContainer: FrameLayout
+    private val emptyTextView: TextView,
+    private val errorTextView: TextView
 ) {
 
     private val pokemonService: PokemonService =
@@ -34,9 +35,9 @@ class PokemonLoader(
     private var offset = 0
     private var searchName = ""
 
+
     fun loadPokemon() {
         showProgressBar()
-
         val requestCall = pokemonService.getPokemonList(PAGE_SIZE, offset)
         requestCall.enqueue(object : Callback<PokemonListResponse> {
             override fun onResponse(
@@ -64,24 +65,13 @@ class PokemonLoader(
             for (pokemon in pokemonList) {
                 val id = extractPokemonId(pokemon.url)
                 getPokemonTypeName(id) { typeName ->
-                    val imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
-
+                    val imageUrl =
+                        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
                     val pokemonData = PokemonData(pokemon.name, id, typeName, imageUrl)
                     processedPokemonList.add(pokemonData)
-
                     if (processedPokemonList.size == pokemonList.size) {
-//                        processedPokemonList.clear()
-                        if (processedPokemonList.isEmpty()) {
-                            showEmptyLayout()
-                        } else {
-                            hideEmptyLayout()
-                            val adapter =
-                                recyclerView.adapter as? PokemonAdapter ?: PokemonAdapter(processedPokemonList)
-                            adapter.addItems(processedPokemonList)
-                        }
-
+                        handleProcessedPokemonList(processedPokemonList)
                     }
-                    hideProgressBar()
                 }
             }
         } else if (response.code() == 401) {
@@ -89,6 +79,18 @@ class PokemonLoader(
         } else {
             showErrorLayout("Failed to retrieve items")
         }
+    }
+
+    private fun handleProcessedPokemonList(processedPokemonList: List<PokemonData>) {
+        if (processedPokemonList.isEmpty()) {
+            showEmptyLayout()
+        } else {
+            hideEmptyLayout()
+            val adapter =
+                recyclerView.adapter as? PokemonAdapter ?: PokemonAdapter(processedPokemonList)
+            adapter.addItems(processedPokemonList as MutableList<PokemonData>)
+        }
+        hideProgressBar()
     }
 
     private fun handleError(t: Throwable) {
@@ -143,28 +145,24 @@ class PokemonLoader(
     private fun showProgressBar() {
         progressBar.visibility = View.VISIBLE
     }
+
     private fun hideProgressBar() {
         progressBar.visibility = View.GONE
     }
 
     private fun showEmptyLayout() {
-        emptyErrorContainer.visibility = View.VISIBLE
+        emptyTextView.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
     }
 
     private fun hideEmptyLayout() {
-        emptyErrorContainer.visibility = View.GONE
+        emptyTextView.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
     }
 
-
     private fun showErrorLayout(errorMessage: String) {
-        emptyErrorContainer.visibility = View.VISIBLE
+        errorTextView.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
-
-        // Show the error message in the Error layout
-        val errorTextView: TextView = emptyErrorContainer.findViewById(R.id.errorTextView)
         errorTextView.text = errorMessage
     }
-
 }
