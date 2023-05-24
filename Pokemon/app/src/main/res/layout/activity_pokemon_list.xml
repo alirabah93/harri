@@ -30,9 +30,13 @@
                 android:drawablePadding="8dp"
                 android:hint="@string/search_pokemon"
                 android:imeOptions="actionSearch"
+                android:importantForAutofill="no"
                 android:inputType="text"
+                android:minHeight="48dp"
                 android:padding="10dp"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textColorHint="#757575"
+                tools:ignore="VisualLintTextFieldSize" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -44,6 +48,7 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pokemon_recycler_view"
             android:layout_width="match_parent"
@@ -51,7 +56,22 @@
             android:padding="16dp"
             android:scrollbars="vertical"
             app:spanCount="@integer/span_count"
+            android:visibility="visible"
             tools:listitem="@layout/list_item" />
+
+        <FrameLayout
+            android:id="@+id/emptyErrorContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <!-- Empty layout -->
+            <include layout="@layout/layout_empty" />
+
+            <!-- Error layout -->
+            <include layout="@layout/layout_error" />
+
+        </FrameLayout>
 
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -2,10 +2,13 @@ package com.smartherd.pokemon.list
 
 import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.smartherd.pokemon.R
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonData
 import com.smartherd.pokemon.models.PokemonListResponse
@@ -22,7 +25,8 @@ private const val PAGE_SIZE = 20
 class PokemonLoader(
     private val activity: AppCompatActivity,
     private val recyclerView: RecyclerView,
-    private val progressBar: ProgressBar
+    private val progressBar: ProgressBar,
+    private val emptyErrorContainer: FrameLayout
 ) {
 
     private val pokemonService: PokemonService =
@@ -66,23 +70,30 @@ class PokemonLoader(
                     processedPokemonList.add(pokemonData)
 
                     if (processedPokemonList.size == pokemonList.size) {
-                        val adapter = recyclerView.adapter as? PokemonAdapter ?: PokemonAdapter(processedPokemonList)
-                        adapter.addItems(processedPokemonList)
+//                        processedPokemonList.clear()
+                        if (processedPokemonList.isEmpty()) {
+                            showEmptyLayout()
+                        } else {
+                            hideEmptyLayout()
+                            val adapter =
+                                recyclerView.adapter as? PokemonAdapter ?: PokemonAdapter(processedPokemonList)
+                            adapter.addItems(processedPokemonList)
+                        }
 
-                        hideProgressBar()
                     }
+                    hideProgressBar()
                 }
             }
         } else if (response.code() == 401) {
-            showErrorMessage("Your session has expired. Please Login again.")
+            showErrorLayout("Your session has expired. Please Login again.")
         } else {
-            showErrorMessage("Failed to retrieve items")
+            showErrorLayout("Failed to retrieve items")
         }
     }
 
     private fun handleError(t: Throwable) {
         Log.e("Failed Api", "Failed Api with error code: ${t.message}")
-        showErrorMessage("Error Occurred: ${t.toString()}")
+        showErrorLayout("Error Occurred: ${t.toString()}")
         hideProgressBar()
     }
 
@@ -134,6 +145,26 @@ class PokemonLoader(
     }
     private fun hideProgressBar() {
         progressBar.visibility = View.GONE
+    }
+
+    private fun showEmptyLayout() {
+        emptyErrorContainer.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+    }
+
+    private fun hideEmptyLayout() {
+        emptyErrorContainer.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
+    }
+
+
+    private fun showErrorLayout(errorMessage: String) {
+        emptyErrorContainer.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+
+        // Show the error message in the Error layout
+        val errorTextView: TextView = emptyErrorContainer.findViewById(R.id.errorTextView)
+        errorTextView.text = errorMessage
     }
 
 }

@@ -3,4 +3,6 @@
     <string name="pokemon">pokemon</string>
     <string name="pokemon_image">pokemon image</string>
     <string name="search_pokemon">Search Pokemon</string>
+    <string name="error_loading_pokemon_list">Error loading Pokemon list.</string>
+    <string name="no_items_found">No items found.</string>
 </resources>

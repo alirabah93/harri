@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.FrameLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
@@ -22,11 +23,17 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
         binding = ActivityPokemonListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         setupLayoutManager()
         setupAdapter()
         setupSearchEditText()
 
-        pokemonLoader = PokemonLoader(this, binding.pokemonRecyclerView, binding.progressBar)
+        pokemonLoader = PokemonLoader(
+            this,
+            binding.pokemonRecyclerView,
+            binding.progressBar,
+            binding.emptyErrorContainer
+        )
     }
 
     override fun onResume() {
