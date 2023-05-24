@@ -31,12 +31,10 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
 
     override fun onResume() {
         super.onResume()
-        showProgressBar()
         pokemonLoader.loadPokemon()
     }
 
     override fun onReachedBottomList() {
-        showProgressBar()
         pokemonLoader.increaseOffset()
         pokemonLoader.loadPokemon()
     }
@@ -65,13 +63,11 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             }
 
             override fun afterTextChanged(s: Editable?) {
+                pokemonAdapter.clearItems()
                 pokemonLoader.setSearchName(s.toString())
                 pokemonLoader.loadPokemon()
             }
         })
     }
 
-    private fun showProgressBar() {
-        binding.progressBar.visibility = View.VISIBLE
-    }
 }

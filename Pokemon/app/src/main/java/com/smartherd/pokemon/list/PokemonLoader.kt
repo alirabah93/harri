@@ -31,7 +31,7 @@ class PokemonLoader(
     private var searchName = ""
 
     fun loadPokemon() {
-        progressBar.visibility = View.VISIBLE
+        showProgressBar()
 
         val requestCall = pokemonService.getPokemonList(PAGE_SIZE, offset)
         requestCall.enqueue(object : Callback<PokemonListResponse> {
@@ -69,7 +69,7 @@ class PokemonLoader(
                         val adapter = recyclerView.adapter as? PokemonAdapter ?: PokemonAdapter(processedPokemonList)
                         adapter.addItems(processedPokemonList)
 
-                        progressBar.visibility = View.GONE
+                        hideProgressBar()
                     }
                 }
             }
@@ -83,7 +83,7 @@ class PokemonLoader(
     private fun handleError(t: Throwable) {
         Log.e("Failed Api", "Failed Api with error code: ${t.message}")
         showErrorMessage("Error Occurred: ${t.toString()}")
-        progressBar.visibility = View.GONE
+        hideProgressBar()
     }
 
     private fun showErrorMessage(message: String) {
@@ -93,6 +93,7 @@ class PokemonLoader(
     fun setSearchName(name: String) {
         searchName = name
         offset = 0
+        hideProgressBar()
     }
 
     fun increaseOffset() {
@@ -126,6 +127,13 @@ class PokemonLoader(
                 handleError(t)
             }
         })
+    }
+
+    private fun showProgressBar() {
+        progressBar.visibility = View.VISIBLE
+    }
+    private fun hideProgressBar() {
+        progressBar.visibility = View.GONE
     }
 
 }
