@@ -2,23 +2,20 @@ package com.smartherd.pokemon.list
 
 import android.util.Log
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.smartherd.pokemon.R
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonData
+import com.smartherd.pokemon.models.PokemonDetail
 import com.smartherd.pokemon.models.PokemonListResponse
-import com.smartherd.pokemon.models.PokemonTypeSlot
 import com.smartherd.pokemon.services.PokemonService
 import com.smartherd.pokemon.services.ServiceBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.IOException
 
 private const val PAGE_SIZE = 20
 
@@ -64,10 +61,7 @@ class PokemonLoader(
 
             for (pokemon in pokemonList) {
                 val id = extractPokemonId(pokemon.url)
-                getPokemonTypeName(id) { typeName ->
-                    val imageUrl =
-                        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
-                    val pokemonData = PokemonData(pokemon.name, id, typeName, imageUrl)
+                getPokemonData(id, pokemon) { pokemonData ->
                     processedPokemonList.add(pokemonData)
                     if (processedPokemonList.size == pokemonList.size) {
                         handleProcessedPokemonList(processedPokemonList)
@@ -119,24 +113,34 @@ class PokemonLoader(
         return matchResult?.groupValues?.get(1)?.toIntOrNull() ?: -1
     }
 
-    private fun getPokemonTypeName(id: Int, callback: (String) -> Unit) {
-        val requestCall: Call<PokemonTypeSlot> = pokemonService.getPokemonType(id)
-        requestCall.enqueue(object : Callback<PokemonTypeSlot> {
+    private fun getPokemonData(id: Int, pokemon: Pokemon, callback: (PokemonData) -> Unit) {
+        val requestCall: Call<PokemonDetail> = pokemonService.getPokemonDetail(id)
+        requestCall.enqueue(object : Callback<PokemonDetail> {
             override fun onResponse(
-                call: Call<PokemonTypeSlot>,
-                response: Response<PokemonTypeSlot>
+                call: Call<PokemonDetail>,
+                response: Response<PokemonDetail>
             ) {
                 if (response.isSuccessful) {
-                    val pokemonType = response.body()?.types?.getOrNull(0)?.type?.name ?: ""
-                    callback(pokemonType)
+                    val pokemonDetail = response.body()
+                    val typeName = pokemonDetail?.types?.getOrNull(0)?.type?.name ?: ""
+                    val weight = pokemonDetail?.weight ?: 0
+                    val height = pokemonDetail?.height ?: 0
+                    val stats = pokemonDetail?.stats ?: emptyList()
+
+                    val imageUrl =
+                        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
+                    val pokemonData =
+                        PokemonData(pokemon.name, id, typeName, imageUrl, weight, height, stats)
+                    callback(pokemonData)
+                    println("this is pokemonData: $pokemonData")
                 } else if (response.code() == 401) {
-                    showErrorMessage("Your session has expired. Please Login again.")
+                    showErrorMessage("Your session has expired. Please login again.")
                 } else {
-                    showErrorMessage("Failed to retrieve items")
+                    showErrorMessage("Failed to retrieve Pokemon data")
                 }
             }
 
-            override fun onFailure(call: Call<PokemonTypeSlot>, t: Throwable) {
+            override fun onFailure(call: Call<PokemonDetail>, t: Throwable) {
                 handleError(t)
             }
         })

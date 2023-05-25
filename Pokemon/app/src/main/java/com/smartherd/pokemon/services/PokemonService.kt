@@ -1,8 +1,8 @@
 package com.smartherd.pokemon.services
 
 
+import com.smartherd.pokemon.models.PokemonDetail
 import com.smartherd.pokemon.models.PokemonListResponse
-import com.smartherd.pokemon.models.PokemonTypeSlot
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,6 +18,6 @@ interface PokemonService {
     ): Call<PokemonListResponse>
 
     @GET("pokemon/{id}")
-    fun getPokemonType(@Path("id") id: Int): Call<PokemonTypeSlot>
+    fun getPokemonDetail(@Path("id") id: Int): Call<PokemonDetail>
 
 }

@@ -1,8 +1,10 @@
 package com.smartherd.pokemon.list
 
 import android.content.Intent
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.detail.PokemonDetailActivity
@@ -23,8 +25,9 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         holder.bindPokemon(pokemonList[position])
         holder.itemView.setOnClickListener { v ->
             val context = v.context
+            val selectedPokemon = pokemonList[position]
             val intent = Intent(context, PokemonDetailActivity::class.java).apply {
-                putExtra(PokemonDetailActivity.ARG_ITEM_NAME, holder.pokemon?.name)
+                putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON, selectedPokemon)
             }
             context.startActivity(intent)
         }
@@ -55,3 +58,7 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         positionChangeListener = listener
     }
 }
+
+//private fun Parcelable.putExtra(argSelectedPokemon: String, selectedPokemon: PokemonData) {
+//
+//}
