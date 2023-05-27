@@ -13,18 +13,20 @@ class PokemonDetailAdapter(private var pokemonStatDetail: List<PokemonStat>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PokemonDetailViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.detail_item, parent, false)
         return PokemonDetailViewHolder(view)
-        println("this is pokemonStatDetail: $pokemonStatDetail")
     }
 
     override fun getItemCount(): Int {
-        println("this is pokemonStatDetail: $pokemonStatDetail")
         return pokemonStatDetail.size
     }
 
     override fun onBindViewHolder(holder: PokemonDetailViewHolder, position: Int) {
-        println("this is pokemonStatDetail: $pokemonStatDetail")
         val stat = pokemonStatDetail[position]
         holder.bindPokemonDetail(stat)
+    }
+
+    fun setStats(stats: List<PokemonStat>) {
+        this.pokemonStatDetail = stats
+        notifyDataSetChanged()
     }
 }
 

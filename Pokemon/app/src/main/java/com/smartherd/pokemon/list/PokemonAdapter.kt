@@ -23,6 +23,7 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
 
     override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
         holder.bindPokemon(pokemonList[position])
+        println("this is pokemonList: $pokemonList")
         holder.itemView.setOnClickListener { v ->
             val context = v.context
             val selectedPokemon = pokemonList[position]
@@ -58,7 +59,3 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         positionChangeListener = listener
     }
 }
-
-//private fun Parcelable.putExtra(argSelectedPokemon: String, selectedPokemon: PokemonData) {
-//
-//}

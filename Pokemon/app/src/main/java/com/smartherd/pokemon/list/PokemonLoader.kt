@@ -132,7 +132,6 @@ class PokemonLoader(
                     val pokemonData =
                         PokemonData(pokemon.name, id, typeName, imageUrl, weight, height, stats)
                     callback(pokemonData)
-                    println("this is pokemonData: $pokemonData")
                 } else if (response.code() == 401) {
                     showErrorMessage("Your session has expired. Please login again.")
                 } else {

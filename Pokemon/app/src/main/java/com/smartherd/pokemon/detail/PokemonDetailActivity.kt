@@ -1,13 +1,14 @@
 package com.smartherd.pokemon.detail
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.ActivityPokemonDetailBinding
 import com.smartherd.pokemon.models.PokemonData
 import com.smartherd.pokemon.models.PokemonTypeColor
@@ -44,17 +45,18 @@ class PokemonDetailActivity : AppCompatActivity() {
             .load(selectedPokemon.imageUrl)
             .into(binding.pokemonImage)
 
-        val statsList = selectedPokemon.stats
-        println("this is statsList: $statsList")
-
-        pokemonDetailAdapter = PokemonDetailAdapter(selectedPokemon.stats)
+        val spanCount = resources.getInteger(R.integer.span_count)
+        binding.pokemonDetailRecyclerView.layoutManager = GridLayoutManager(this, spanCount)
+        pokemonDetailAdapter = PokemonDetailAdapter(emptyList())
         binding.pokemonDetailRecyclerView.adapter = pokemonDetailAdapter
+
+        val statsList = selectedPokemon.stats
+        pokemonDetailAdapter.setStats(statsList)
 
     }
 
     override fun onResume() {
         super.onResume()
-        binding.pokemonDetailRecyclerView.adapter = pokemonDetailAdapter
     }
 
     override fun onSupportNavigateUp(): Boolean {
