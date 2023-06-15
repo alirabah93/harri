@@ -1,10 +1,8 @@
 package com.smartherd.pokemon.list
 
 import android.content.Intent
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.detail.PokemonDetailActivity
@@ -23,7 +21,7 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
 
     override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
         holder.bindPokemon(pokemonList[position])
-        println("this is pokemonList: $pokemonList")
+
         holder.itemView.setOnClickListener { v ->
             val context = v.context
             val selectedPokemon = pokemonList[position]
@@ -38,23 +36,19 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         }
     }
 
-
     override fun getItemCount(): Int = pokemonList.size
 
-    fun addItems(newItems: MutableList<PokemonData>) {
-        pokemonList += newItems
+    fun addItems(newItems: List<PokemonData>) {
+        pokemonList = newItems
         notifyDataSetChanged()
     }
-
     fun clearItems() {
         pokemonList = emptyList()
         notifyDataSetChanged()
     }
-
     interface OnPositionChangeListener {
         fun onReachedBottomList()
     }
-
     fun setOnPositionChangeListener(listener: OnPositionChangeListener) {
         positionChangeListener = listener
     }
