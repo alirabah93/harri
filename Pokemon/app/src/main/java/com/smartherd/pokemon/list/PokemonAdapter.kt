@@ -2,37 +2,55 @@ package com.smartherd.pokemon.list
 
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.detail.PokemonDetailActivity
 import com.smartherd.pokemon.models.PokemonData
 
+    private const val VIEW_TYPE_POKEMON = 0
+    private const val VIEW_TYPE_PROGRESSBAR = 1
 class PokemonAdapter(private var pokemonList: List<PokemonData>) :
-    RecyclerView.Adapter<PokemonViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var positionChangeListener: OnPositionChangeListener? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PokemonViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
-        return PokemonViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_POKEMON) {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
+            PokemonViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.view_progress_bar, parent, false)
+            LoadingViewHolder(view)
+        }
     }
 
-    override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
-        holder.bindPokemon(pokemonList[position])
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val viewType = getItemViewType(position)
 
-        holder.itemView.setOnClickListener { v ->
-            val context = v.context
-            val selectedPokemon = pokemonList[position]
-            val intent = Intent(context, PokemonDetailActivity::class.java).apply {
-                putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON, selectedPokemon)
+        if (viewType == VIEW_TYPE_POKEMON) {
+            (holder as PokemonViewHolder).bindPokemon(pokemonList[position])
+            holder.itemView.setOnClickListener { v ->
+                val context = v.context
+                val selectedPokemon = pokemonList[position]
+                val intent = Intent(context, PokemonDetailActivity::class.java).apply {
+                    putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON, selectedPokemon)
+                }
+                context.startActivity(intent)
             }
-            context.startActivity(intent)
         }
 
         if (position == pokemonList.size - 1) {
             positionChangeListener?.onReachedBottomList()
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position == itemCount - 1) {
+            VIEW_TYPE_PROGRESSBAR
+        } else {
+            VIEW_TYPE_POKEMON
         }
     }
 
@@ -42,14 +60,11 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         pokemonList = newItems
         notifyDataSetChanged()
     }
-    fun clearItems() {
-        pokemonList = emptyList()
-        notifyDataSetChanged()
-    }
     interface OnPositionChangeListener {
         fun onReachedBottomList()
     }
     fun setOnPositionChangeListener(listener: OnPositionChangeListener) {
         positionChangeListener = listener
     }
+    class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

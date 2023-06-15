@@ -1,9 +1,6 @@
 package com.smartherd.pokemon.list
 
-import android.annotation.SuppressLint
 import android.util.Log
-import android.view.View
-import android.widget.ProgressBar
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonData
 import com.smartherd.pokemon.models.PokemonDetail
@@ -17,12 +14,9 @@ import retrofit2.Response
 
 object PokemonRepository {
 
-//    do snack bar
     private val pokemonService: PokemonService = ServiceBuilder.buildService(PokemonService::class.java)
     private val allPokemons = mutableListOf<PokemonData>()
     private lateinit var pokemonList: List<Pokemon>
-
-    private var offset = 0
     private const val PAGE_LIMIT = 20
 
 
@@ -46,7 +40,7 @@ object PokemonRepository {
         })
     }
 
-    fun searchPokemon(searchName: String, callback: PokemonCallback){
+    fun searchPokemonName(searchName: String, callback: PokemonCallback){
         pokemonService.getPokemonList().enqueue(object : Callback<PokemonListResponse> {
             override fun onResponse(
                 call: Call<PokemonListResponse>,
@@ -66,7 +60,6 @@ object PokemonRepository {
             }
         })
     }
-
 
     private fun handleResponse(
         response: Response<PokemonListResponse>,
