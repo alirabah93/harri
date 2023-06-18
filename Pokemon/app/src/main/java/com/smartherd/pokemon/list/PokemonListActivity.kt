@@ -75,7 +75,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             override fun onError(error: String) {
                 Log.e("Failed Api", "Failed Api with error code: $error")
             }
-        })
+        }, binding.root)
     }
 
     private fun searchPokemon(){
@@ -86,6 +86,6 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             override fun onError(error: String) {
                 Log.e("Failed Api", "Failed Api with error code: $error")
             }
-        })
+        }, binding.root)
     }
 }

@@ -1,6 +1,9 @@
 package com.smartherd.pokemon.list
 
+import android.content.Context
 import android.util.Log
+import android.view.View
+import com.google.android.material.snackbar.Snackbar
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonData
 import com.smartherd.pokemon.models.PokemonDetail
@@ -17,10 +20,11 @@ object PokemonRepository {
     private val pokemonService: PokemonService = ServiceBuilder.buildService(PokemonService::class.java)
     private val allPokemons = mutableListOf<PokemonData>()
     private lateinit var pokemonList: List<Pokemon>
+    private lateinit var snack: Snackbar
     private const val PAGE_LIMIT = 20
 
 
-    fun loadPokemonPage(offset: Int, callback: PokemonCallback){
+    fun loadPokemonPage(offset: Int, callback: PokemonCallback, view: View){
         pokemonService.getPokemonList(PAGE_LIMIT, offset).enqueue(object : Callback<PokemonListResponse> {
             override fun onResponse(
                 call: Call<PokemonListResponse>,
@@ -28,19 +32,23 @@ object PokemonRepository {
             ) {
                 if (response.isSuccessful) {
                     handleResponse(response, callback)
-                    Log.e("error555", "this is error")
+                    snack = Snackbar.make(view, "+20 Pokemons has been loaded", Snackbar.LENGTH_LONG)
+                    snack.show()
+                    Log.i("Load Success", "Pokemons loaded successfully")
                 } else {
-                    Log.e("error444", "this is error")
+                    snack = Snackbar.make(view, "failed to fetch Pokemons, pull to refresh", Snackbar.LENGTH_LONG)
+                    snack.show()
+                    Log.e("Load Error", "Failed to fetch pokemons.")
                     callback.onError("Failed to fetch pokemons.")
                 }
             }
             override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                handleError(t)
+                Log.e("On Failure Error", "Failure Error description: ${t.message}")
             }
         })
     }
 
-    fun searchPokemonName(searchName: String, callback: PokemonCallback){
+    fun searchPokemonName(searchName: String, callback: PokemonCallback, view: View){
         pokemonService.getPokemonList().enqueue(object : Callback<PokemonListResponse> {
             override fun onResponse(
                 call: Call<PokemonListResponse>,
@@ -48,15 +56,19 @@ object PokemonRepository {
             ) {
                 if (response.isSuccessful) {
                     handleSearch(response, callback, searchName)
-//                    Log.i("pokemonList", allPokemons.toString())
+                    snack = Snackbar.make(view, "Search is completed", Snackbar.LENGTH_LONG)
+                    snack.show()
+                    Log.i("Search Success", "Search completed successfully")
                 } else {
-                    Log.e("error444", "this is error")
-                    callback.onError("Failed to fetch pokemons.")
+                    snack = Snackbar.make(view, "Failed to search, try again", Snackbar.LENGTH_LONG)
+                    snack.show()
+                    Log.e("Search Error", "Failed to search pokemons.")
+                    callback.onError("Failed to search pokemons.")
                 }
             }
 
             override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                handleError(t)
+                Log.e("On Failure Error", "Failure Error description: ${t.message}")
             }
         })
     }
@@ -116,25 +128,19 @@ object PokemonRepository {
                     val pokemonData =
                         PokemonData(pokemon.name, id, typeName, imageUrl, weight, height, stats)
                     callback(pokemonData)
+                    Log.i("Pokemons Data success", "Fetching Pokemons data completed successfully")
                 } else if (response.code() == 401) {
-                    showErrorMessage("Error code 401. Please try again.")
+                    Log.e("Pokemons Data Error 401", "Error code 401. Please try again.")
                 } else {
-                    showErrorMessage("Failed to retrieve Pokemon data")
+
+                    Log.e("Pokemons Data Error", "Unknown Error. Please try again.")
                 }
             }
 
             override fun onFailure(call: Call<PokemonDetail>, t: Throwable) {
-                handleError(t)
+                Log.e("On Failure Error", "Failure Error description: ${t.message}")
             }
         })
-    }
-
-    private fun handleError(t: Throwable) {
-        Log.e("Failed Api", "Failed Api with error code: ${t.message}")
-    }
-
-    private fun showErrorMessage(message: String) {
-        Log.e("Failed Api", "error code: $message")
     }
 
     private fun extractPokemonId(pokemonUrl: String): Int {
