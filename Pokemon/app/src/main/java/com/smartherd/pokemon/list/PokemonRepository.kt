@@ -1,6 +1,5 @@
 package com.smartherd.pokemon.list
 
-import android.content.Context
 import android.util.Log
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
@@ -13,7 +12,6 @@ import com.smartherd.pokemon.services.ServiceBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 object PokemonRepository {
 
@@ -71,6 +69,17 @@ object PokemonRepository {
                 Log.e("On Failure Error", "Failure Error description: ${t.message}")
             }
         })
+    }
+
+    fun loadPokemonDetails(id: Int, callback: PokemonDetailsCallback){
+
+        val selectedPokemon = allPokemons.find { it.id == id }
+        if (selectedPokemon != null) {
+            callback.onSuccess(selectedPokemon)
+        } else {
+            callback.onError("Failed to fetch pokemon's details.")
+        }
+
     }
 
     private fun handleResponse(
@@ -154,5 +163,10 @@ object PokemonRepository {
         fun onError(error: String)
     }
 
+    interface PokemonDetailsCallback {
+        fun onSuccess(pokemon: PokemonData)
+        fun onError(error: String)
+
+    }
 
 }

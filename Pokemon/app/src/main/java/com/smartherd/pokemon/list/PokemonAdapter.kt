@@ -35,7 +35,7 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
                 val context = v.context
                 val selectedPokemon = pokemonList[position]
                 val intent = Intent(context, PokemonDetailActivity::class.java).apply {
-                    putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON, selectedPokemon)
+                    putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON_ID, selectedPokemon.id)
                 }
                 context.startActivity(intent)
             }

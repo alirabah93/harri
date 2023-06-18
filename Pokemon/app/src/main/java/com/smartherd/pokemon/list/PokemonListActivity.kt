@@ -15,7 +15,6 @@ import com.smartherd.pokemon.list.PokemonRepository.searchPokemonName
 import com.smartherd.pokemon.models.PokemonData
 
 
-
 class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChangeListener {
 
     private lateinit var binding: ActivityPokemonListBinding

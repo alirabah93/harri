@@ -1,15 +1,17 @@
 package com.smartherd.pokemon.detail
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.ActivityPokemonDetailBinding
+import com.smartherd.pokemon.list.PokemonRepository
 import com.smartherd.pokemon.models.PokemonData
 import com.smartherd.pokemon.models.PokemonTypeColor
 
@@ -17,7 +19,6 @@ class PokemonDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPokemonDetailBinding
     private lateinit var pokemonDetailAdapter: PokemonDetailAdapter
-    private lateinit var selectedPokemon: PokemonData
 
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -26,37 +27,47 @@ class PokemonDetailActivity : AppCompatActivity() {
         binding = ActivityPokemonDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        selectedPokemon = intent.getParcelableExtra(ARG_SELECTED_POKEMON)!!
-
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = selectedPokemon.name
 
-        binding.pokemonWeight.text = selectedPokemon.weight.toString() + " kgs"
-        binding.pokemonHeight.text = selectedPokemon.height.toString() + " meters"
-
-        val pokemonType = PokemonTypeColor.fromTypeName(selectedPokemon.typeName)
-        val color = pokemonType.getColor(this)
-        binding.appBarLayout.setBackgroundColor(color)
-        binding.toolbar.setBackgroundColor(color)
-        window.statusBarColor = color
-
-        Glide.with(this)
-            .load(selectedPokemon.imageUrl)
-            .into(binding.pokemonImage)
-
-        val spanCount = resources.getInteger(R.integer.span_count)
-        binding.pokemonDetailRecyclerView.layoutManager = GridLayoutManager(this, spanCount)
-        pokemonDetailAdapter = PokemonDetailAdapter(emptyList())
-        binding.pokemonDetailRecyclerView.adapter = pokemonDetailAdapter
-
-        val statsList = selectedPokemon.stats
-        pokemonDetailAdapter.setStats(statsList)
+        val selectedPokemonId = intent.getIntExtra(ARG_SELECTED_POKEMON_ID, 0)
+        loadPokemonDetails(selectedPokemonId)
 
     }
 
-    override fun onResume() {
-        super.onResume()
+    private fun loadPokemonDetails(id: Int){
+        PokemonRepository.loadPokemonDetails(id, object : PokemonRepository.PokemonDetailsCallback {
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            @SuppressLint("SetTextI18n")
+            override fun onSuccess(selectedPokemon: PokemonData) {
+                supportActionBar?.title = selectedPokemon.name
+
+                binding.pokemonWeight.text = selectedPokemon.weight.toString() + " kgs"
+                binding.pokemonHeight.text = selectedPokemon.height.toString() + " meters"
+
+                val pokemonType = PokemonTypeColor.fromTypeName(selectedPokemon.typeName)
+                val color = pokemonType.getColor(this@PokemonDetailActivity)
+                binding.appBarLayout.setBackgroundColor(color)
+                binding.toolbar.setBackgroundColor(color)
+                window.statusBarColor = color
+
+                Glide.with(this@PokemonDetailActivity)
+                    .load(selectedPokemon.imageUrl)
+                    .into(binding.pokemonImage)
+
+                val spanCount = resources.getInteger(R.integer.span_count)
+                binding.pokemonDetailRecyclerView.layoutManager = GridLayoutManager(this@PokemonDetailActivity, spanCount)
+                pokemonDetailAdapter = PokemonDetailAdapter(emptyList())
+                binding.pokemonDetailRecyclerView.adapter = pokemonDetailAdapter
+
+                val statsList = selectedPokemon.stats
+                pokemonDetailAdapter.setStats(statsList)
+            }
+
+            override fun onError(error: String) {
+                Log.e("Failed Api", "Failed Api with error code: $error")
+            }
+        })
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -65,6 +76,6 @@ class PokemonDetailActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val ARG_SELECTED_POKEMON = "selected_pokemon"
+        const val ARG_SELECTED_POKEMON_ID = "selected_pokemon_id"
     }
 }
