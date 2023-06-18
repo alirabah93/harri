@@ -7,9 +7,12 @@ import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
+import com.smartherd.pokemon.list.PokemonRepository.clearAllPokemons
 import com.smartherd.pokemon.list.PokemonRepository.loadPokemonPage
 import com.smartherd.pokemon.list.PokemonRepository.searchPokemonName
 import com.smartherd.pokemon.models.PokemonData
@@ -19,6 +22,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
 
     private lateinit var binding: ActivityPokemonListBinding
     private lateinit var pokemonAdapter: PokemonAdapter
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private var offset = 0
     private var searchName = ""
     private val handler = Handler()
@@ -28,6 +32,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
         binding = ActivityPokemonListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupRecyclerView()
+        setupSwipeRefreshLayout()
         loadPokemon()
         setupSearchEditText()
     }
@@ -86,5 +91,19 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
                 Log.e("Failed Api", "Failed Api with error code: $error")
             }
         }, binding.root)
+    }
+
+    private fun setupSwipeRefreshLayout() {
+        swipeRefreshLayout = binding.swipeRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener {
+            refreshPokemonList()
+        }
+    }
+
+    private fun refreshPokemonList() {
+        offset = 0
+        clearAllPokemons()
+        loadPokemon()
+        swipeRefreshLayout.isRefreshing = false
     }
 }

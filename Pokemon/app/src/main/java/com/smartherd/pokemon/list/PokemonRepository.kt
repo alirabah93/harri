@@ -157,4 +157,8 @@ object PokemonRepository {
         val matchResult = regex.find(pokemonUrl)
         return matchResult?.groupValues?.get(1)?.toIntOrNull() ?: -1
     }
+
+    fun clearAllPokemons() {
+        allPokemons.clear()
+    }
 }
