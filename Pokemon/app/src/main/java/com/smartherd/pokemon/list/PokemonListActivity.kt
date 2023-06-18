@@ -66,7 +66,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     }
 
     private fun loadPokemon(){
-        loadPokemonPage(offset, object : PokemonRepository.PokemonCallback{
+        loadPokemonPage(offset, object : PokemonCallback{
             override fun onSuccess(pokemons: List<PokemonData>) {
                 pokemonAdapter.addItems(pokemons)
                 offset = pokemons.size
@@ -78,7 +78,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     }
 
     private fun searchPokemon(){
-        searchPokemonName(searchName, object : PokemonRepository.PokemonCallback{
+        searchPokemonName(searchName, object : PokemonCallback{
             override fun onSuccess(pokemons: List<PokemonData>) {
                 pokemonAdapter.addItems(pokemons)
             }

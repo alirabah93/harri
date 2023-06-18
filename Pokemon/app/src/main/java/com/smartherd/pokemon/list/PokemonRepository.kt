@@ -3,6 +3,7 @@ package com.smartherd.pokemon.list
 import android.util.Log
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
+import com.smartherd.pokemon.detail.PokemonDetailsCallback
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonData
 import com.smartherd.pokemon.models.PokemonDetail
@@ -151,22 +152,9 @@ object PokemonRepository {
             }
         })
     }
-
     private fun extractPokemonId(pokemonUrl: String): Int {
         val regex = Regex("""/pokemon/(\d+)/""")
         val matchResult = regex.find(pokemonUrl)
         return matchResult?.groupValues?.get(1)?.toIntOrNull() ?: -1
     }
-
-    interface PokemonCallback {
-        fun onSuccess(pokemons: List<PokemonData>)
-        fun onError(error: String)
-    }
-
-    interface PokemonDetailsCallback {
-        fun onSuccess(pokemon: PokemonData)
-        fun onError(error: String)
-
-    }
-
 }

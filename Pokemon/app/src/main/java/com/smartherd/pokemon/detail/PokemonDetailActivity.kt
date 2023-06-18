@@ -36,7 +36,7 @@ class PokemonDetailActivity : AppCompatActivity() {
     }
 
     private fun loadPokemonDetails(id: Int){
-        PokemonRepository.loadPokemonDetails(id, object : PokemonRepository.PokemonDetailsCallback {
+        PokemonRepository.loadPokemonDetails(id, object : PokemonDetailsCallback {
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             @SuppressLint("SetTextI18n")
             override fun onSuccess(selectedPokemon: PokemonData) {
