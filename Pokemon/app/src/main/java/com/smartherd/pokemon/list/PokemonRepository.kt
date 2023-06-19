@@ -16,52 +16,97 @@ import retrofit2.Response
 
 object PokemonRepository {
 
-    private val pokemonService: PokemonService = ServiceBuilder.buildService(PokemonService::class.java)
+    private val pokemonService: PokemonService =
+        ServiceBuilder.buildService(PokemonService::class.java)
     private val allPokemons = mutableListOf<PokemonData>()
     private lateinit var pokemonList: List<Pokemon>
     private lateinit var snack: Snackbar
+    private var pokemonResponse: PokemonListResponse? = null
+    private var processedPokemonList = mutableListOf<PokemonData>()
     private const val PAGE_LIMIT = 20
 
 
-    fun loadPokemonPage(offset: Int, callback: PokemonCallback, view: View){
-        pokemonService.getPokemonList(PAGE_LIMIT, offset).enqueue(object : Callback<PokemonListResponse> {
-            override fun onResponse(
-                call: Call<PokemonListResponse>,
-                response: Response<PokemonListResponse>
-            ) {
-                if (response.isSuccessful) {
-                    handleResponse(response, callback)
-                    snack = Snackbar.make(view, "+20 Pokemons has been loaded", Snackbar.LENGTH_LONG)
-                    snack.show()
-                    Log.i("Load Success", "Pokemons loaded successfully")
-                } else {
-                    snack = Snackbar.make(view, "failed to fetch Pokemons, pull to refresh", Snackbar.LENGTH_LONG)
-                    snack.show()
-                    Log.e("Load Error", "Failed to fetch pokemons.")
-                    callback.onError("Failed to fetch pokemons.")
+    fun loadPokemonPage(offset: Int, callback: PokemonCallback, view: View) {
+        if (allPokemons.size > offset) {
+            callback.onSuccess(allPokemons)
+            return
+        }
+        pokemonService.getPokemonList(offset, PAGE_LIMIT)
+            .enqueue(object : Callback<PokemonListResponse> {
+                override fun onResponse(
+                    call: Call<PokemonListResponse>,
+                    response: Response<PokemonListResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        pokemonResponse = response.body()
+                        pokemonList = pokemonResponse?.results ?: emptyList()
+                        processedPokemonList.clear()
+                        for (pokemon in pokemonList) {
+                            val id = extractPokemonId(pokemon.url)
+                            getPokemonData(id, pokemon) { pokemonData ->
+                                processedPokemonList.add(pokemonData)
+                                if (processedPokemonList.size == pokemonList.size) {
+                                    allPokemons.addAll(processedPokemonList)
+                                    callback.onSuccess(processedPokemonList)
+                                }
+                            }
+                        }
+                        snack = Snackbar.make(
+                            view,
+                            "+20 Pokemons has been loaded",
+                            Snackbar.LENGTH_LONG
+                        )
+                        snack.show()
+                        Log.i("Load Success", "Pokemons loaded successfully")
+                    } else {
+                        snack = Snackbar.make(
+                            view,
+                            "failed to fetch Pokemons, pull to refresh",
+                            Snackbar.LENGTH_LONG
+                        )
+                        snack.show()
+                        Log.e("Load Error", "Failed to fetch pokemons.")
+                        callback.onError("Failed to fetch pokemons.")
+                    }
                 }
-            }
-            override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                Log.e("On Failure Error", "Failure Error description: ${t.message}")
-            }
-        })
+
+                override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
+                    Log.e("On Failure Error", "Failure Error description: ${t.message}")
+                }
+            })
     }
 
-    fun searchPokemonName(searchName: String, callback: PokemonCallback, view: View){
-        pokemonService.getPokemonList().enqueue(object : Callback<PokemonListResponse> {
+    fun searchPokemonName(searchName: String, callback: PokemonCallback, view: View, limiter: Int) {
+        val nextPageUrl = "https://pokeapi.co/api/v2/pokemon"
+        val allPokemon = mutableListOf<Pokemon>()
+
+        pokemonService.getPokemonListByUrl(nextPageUrl)
+        .enqueue(object : Callback<PokemonListResponse> {
             override fun onResponse(
                 call: Call<PokemonListResponse>,
                 response: Response<PokemonListResponse>
             ) {
                 if (response.isSuccessful) {
-                    handleSearch(response, callback, searchName)
+                    pokemonResponse = response.body()
+                    pokemonList = pokemonResponse?.results?.filter { pokemon ->
+                        pokemon.name.startsWith(searchName, ignoreCase = true)
+                    } ?: emptyList()
+                    if (pokemonResponse != null) {
+//                        nextPageUrl = pokemonResponse.next.toString()
+                        allPokemon.addAll(pokemonList)
+                    }
+                    processedPokemonList.clear()
+                    for (pokemon in pokemonList) {
+                        val id = extractPokemonId(pokemon.url)
+                        getPokemonData(id, pokemon) { pokemonData ->
+                            processedPokemonList.add(pokemonData)
+                            callback.onSuccess(processedPokemonList)
+                        }
+                    }
                     snack = Snackbar.make(view, "Search is completed", Snackbar.LENGTH_LONG)
                     snack.show()
                     Log.i("Search Success", "Search completed successfully")
                 } else {
-                    snack = Snackbar.make(view, "Failed to search, try again", Snackbar.LENGTH_LONG)
-                    snack.show()
-                    Log.e("Search Error", "Failed to search pokemons.")
                     callback.onError("Failed to search pokemons.")
                 }
             }
@@ -72,7 +117,8 @@ object PokemonRepository {
         })
     }
 
-    fun loadPokemonDetails(id: Int, callback: PokemonDetailsCallback){
+
+    fun loadPokemonDetails(id: Int, callback: PokemonDetailsCallback) {
 
         val selectedPokemon = allPokemons.find { it.id == id }
         if (selectedPokemon != null) {
@@ -83,43 +129,6 @@ object PokemonRepository {
 
     }
 
-    private fun handleResponse(
-        response: Response<PokemonListResponse>,
-        callback: PokemonCallback
-    ) {
-        val pokemonResponse = response.body()
-        pokemonList = pokemonResponse?.results?: emptyList()
-        val processedPokemonList = mutableListOf<PokemonData>()
-        for (pokemon in pokemonList) {
-            val id = extractPokemonId(pokemon.url)
-            getPokemonData(id, pokemon) { pokemonData ->
-                processedPokemonList.add(pokemonData)
-                if (processedPokemonList.size == pokemonList.size) {
-                    allPokemons.addAll(processedPokemonList)
-                    callback.onSuccess(allPokemons)
-                }
-            }
-        }
-    }
-    private fun handleSearch(
-        response: Response<PokemonListResponse>,
-        callback: PokemonCallback,
-        searchName: String
-    ) {
-        val pokemonResponse = response.body()
-        pokemonList = pokemonResponse?.results?.filter { pokemon ->
-            pokemon.name.startsWith(searchName, ignoreCase = true)
-        } ?: emptyList()
-        val processedPokemonList = mutableListOf<PokemonData>()
-        for (pokemon in pokemonList) {
-            val id = extractPokemonId(pokemon.url)
-            getPokemonData(id, pokemon) { pokemonData ->
-                processedPokemonList.add(pokemonData)
-                callback.onSuccess(processedPokemonList)
-            }
-        }
-    }
-
     private fun getPokemonData(id: Int, pokemon: Pokemon, callback: (PokemonData) -> Unit) {
         pokemonService.getPokemonDetail(id).enqueue(object : Callback<PokemonDetail> {
             override fun onResponse(
@@ -128,10 +137,10 @@ object PokemonRepository {
             ) {
                 if (response.isSuccessful) {
                     val pokemonDetail = response.body()
-                    val typeName = pokemonDetail?.types?.getOrNull(0)?.type?.name?: ""
-                    val weight = pokemonDetail?.weight?: 0
-                    val height = pokemonDetail?.height?: 0
-                    val stats = pokemonDetail?.stats?: emptyList()
+                    val typeName = pokemonDetail?.types?.getOrNull(0)?.type?.name ?: ""
+                    val weight = pokemonDetail?.weight ?: 0
+                    val height = pokemonDetail?.height ?: 0
+                    val stats = pokemonDetail?.stats ?: emptyList()
 
                     val imageUrl =
                         "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
@@ -152,6 +161,7 @@ object PokemonRepository {
             }
         })
     }
+
     private fun extractPokemonId(pokemonUrl: String): Int {
         val regex = Regex("""/pokemon/(\d+)/""")
         val matchResult = regex.find(pokemonUrl)

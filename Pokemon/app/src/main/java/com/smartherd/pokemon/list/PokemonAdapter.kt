@@ -9,8 +9,9 @@ import com.smartherd.pokemon.R
 import com.smartherd.pokemon.detail.PokemonDetailActivity
 import com.smartherd.pokemon.models.PokemonData
 
-    private const val VIEW_TYPE_POKEMON = 0
-    private const val VIEW_TYPE_PROGRESSBAR = 1
+private const val VIEW_TYPE_POKEMON = 0
+private const val VIEW_TYPE_PROGRESSBAR = 1
+
 class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -18,10 +19,12 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_POKEMON) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
             PokemonViewHolder(view)
         } else {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.view_progress_bar, parent, false)
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.view_progress_bar, parent, false)
             LoadingViewHolder(view)
         }
     }
@@ -39,9 +42,7 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
                 }
                 context.startActivity(intent)
             }
-        }
-
-        if (position == pokemonList.size - 1) {
+        } else {
             positionChangeListener?.onReachedBottomList()
         }
     }
@@ -56,15 +57,23 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
 
     override fun getItemCount(): Int = pokemonList.size
 
-    fun addItems(newItems: List<PokemonData>) {
-        pokemonList = newItems
+    fun addItems(newItems: MutableList<PokemonData>) {
+        pokemonList += newItems
         notifyDataSetChanged()
     }
+
+    fun clearItems() {
+        pokemonList = emptyList()
+        notifyDataSetChanged()
+    }
+
     interface OnPositionChangeListener {
         fun onReachedBottomList()
     }
+
     fun setOnPositionChangeListener(listener: OnPositionChangeListener) {
         positionChangeListener = listener
     }
+
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

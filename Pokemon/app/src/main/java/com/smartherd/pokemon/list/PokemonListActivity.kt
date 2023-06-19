@@ -7,7 +7,6 @@ import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.smartherd.pokemon.R
@@ -24,6 +23,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     private lateinit var pokemonAdapter: PokemonAdapter
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private var offset = 0
+    private var limiter = 20
     private var searchName = ""
     private val handler = Handler()
 
@@ -62,10 +62,16 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             }
             override fun afterTextChanged(s: Editable?) {
                 searchName = s.toString()
-                handler.removeCallbacksAndMessages(null)
-                handler.postDelayed({
-                    searchPokemon()
-                }, 300)
+                if (searchName.isNotEmpty()){
+                    handler.removeCallbacksAndMessages(null)
+                    handler.postDelayed({
+                        searchPokemon()
+                    }, 300)
+                } else {
+                    pokemonAdapter.clearItems()
+                    offset = 0
+                    loadPokemon()
+                }
             }
         })
     }
@@ -73,8 +79,12 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     private fun loadPokemon(){
         loadPokemonPage(offset, object : PokemonCallback{
             override fun onSuccess(pokemons: List<PokemonData>) {
-                pokemonAdapter.addItems(pokemons)
-                offset = pokemons.size
+                pokemonAdapter.addItems(pokemons as MutableList<PokemonData>)
+                if (pokemons.size > 20 && offset == 0){
+                    offset = pokemons.size
+                } else {
+                    offset += 20
+                }
             }
             override fun onError(error: String) {
                 Log.e("Failed Api", "Failed Api with error code: $error")
@@ -85,12 +95,13 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     private fun searchPokemon(){
         searchPokemonName(searchName, object : PokemonCallback{
             override fun onSuccess(pokemons: List<PokemonData>) {
-                pokemonAdapter.addItems(pokemons)
+                pokemonAdapter.clearItems()
+                pokemonAdapter.addItems(pokemons as MutableList<PokemonData>)
             }
             override fun onError(error: String) {
                 Log.e("Failed Api", "Failed Api with error code: $error")
             }
-        }, binding.root)
+        }, binding.root, limiter)
     }
 
     private fun setupSwipeRefreshLayout() {
@@ -101,9 +112,14 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     }
 
     private fun refreshPokemonList() {
-        offset = 0
-        clearAllPokemons()
-        loadPokemon()
+        pokemonAdapter.clearItems()
+        if (searchName.isEmpty()){
+            offset = 0
+            clearAllPokemons()
+            loadPokemon()
+        } else {
+            searchPokemon()
+        }
         swipeRefreshLayout.isRefreshing = false
     }
 }
