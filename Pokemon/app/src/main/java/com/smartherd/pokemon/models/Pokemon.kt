@@ -1,5 +1,7 @@
 package com.smartherd.pokemon.models
 
+import com.google.gson.annotations.SerializedName
+
 data class PokemonListResponse(
     val count: Int,
     val next: String?,
@@ -8,18 +10,18 @@ data class PokemonListResponse(
 )
 
 data class Pokemon(
-    val name: String,
-    val url: String
+    @SerializedName("name") val name: String,
+    @SerializedName("url") val url: String
 )
 
 data class PokemonData(
-    val name: String,
-    val id: Int,
-    val typeName: String,
-    val imageUrl: String,
-    val weight: Int,
-    val height: Int,
-    val stats: List<PokemonStat>
+    @SerializedName("name") val name: String,
+    @SerializedName("id") val id: Int,
+    @SerializedName("typeName") val typeName: String,
+    @SerializedName("imageUrl") val imageUrl: String,
+    @SerializedName("weight") val weight: Int,
+    @SerializedName("height") val height: Int,
+    @SerializedName("stats") val stats: List<PokemonStat>
 )
 
 

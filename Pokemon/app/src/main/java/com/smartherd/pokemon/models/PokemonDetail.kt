@@ -1,28 +1,30 @@
 package com.smartherd.pokemon.models
 
+import com.google.gson.annotations.SerializedName
+
 data class PokemonDetail(
-    val height: Int,
-    val weight: Int,
-    val types: List<PokemonType>,
-    val stats: List<PokemonStat>
+    @SerializedName("height") val height: Int,
+    @SerializedName("weight") val weight: Int,
+    @SerializedName("types") val types: List<PokemonType>,
+    @SerializedName("stats") val stats: List<PokemonStat>
 )
 
 data class PokemonType(
-    val slot: Int,
-    val type: TypeObject
+    @SerializedName("slot") val slot: Int,
+    @SerializedName("type") val type: TypeObject
 )
 
 data class TypeObject(
-    val name: String,
-    val url: String
+    @SerializedName("name") val name: String,
+    @SerializedName("url") val url: String
 )
 
 data class PokemonStat(
-    val base_stat: Int,
-    val stat: StatObject
+    @SerializedName("base_stat") val base_stat: Int,
+    @SerializedName("stat") val stat: StatObject
 )
 
 data class StatObject(
-    val name: String
+    @SerializedName("name") val name: String
 )
 
