@@ -76,45 +76,41 @@ object PokemonRepository {
             })
     }
 
-    fun searchPokemonName(searchName: String, callback: PokemonCallback, view: View, limiter: Int) {
-        val nextPageUrl = "https://pokeapi.co/api/v2/pokemon"
-        val allPokemon = mutableListOf<Pokemon>()
-
-        pokemonService.getPokemonListByUrl(nextPageUrl)
-        .enqueue(object : Callback<PokemonListResponse> {
-            override fun onResponse(
-                call: Call<PokemonListResponse>,
-                response: Response<PokemonListResponse>
-            ) {
-                if (response.isSuccessful) {
-                    pokemonResponse = response.body()
-                    pokemonList = pokemonResponse?.results?.filter { pokemon ->
-                        pokemon.name.startsWith(searchName, ignoreCase = true)
-                    } ?: emptyList()
-                    if (pokemonResponse != null) {
-//                        nextPageUrl = pokemonResponse.next.toString()
-                        allPokemon.addAll(pokemonList)
-                    }
-                    processedPokemonList.clear()
-                    for (pokemon in pokemonList) {
-                        val id = extractPokemonId(pokemon.url)
-                        getPokemonData(id, pokemon) { pokemonData ->
-                            processedPokemonList.add(pokemonData)
-                            callback.onSuccess(processedPokemonList)
+    fun searchPokemonName(offset: Int, searchName: String, callback: PokemonCallback, view: View) {
+        pokemonService.getPokemonList(offset, 1000)
+            .enqueue(object : Callback<PokemonListResponse> {
+                override fun onResponse(
+                    call: Call<PokemonListResponse>,
+                    response: Response<PokemonListResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        pokemonResponse = response.body()
+                        pokemonList = pokemonResponse?.results?.filter { pokemon ->
+                            pokemon.name.startsWith(searchName, ignoreCase = true)
+                        } ?: emptyList()
+                        processedPokemonList.clear()
+                        for (pokemon in pokemonList) {
+                            val id = extractPokemonId(pokemon.url)
+                            getPokemonData(id, pokemon) { pokemonData ->
+                                processedPokemonList.add(pokemonData)
+                                if (processedPokemonList.size == pokemonList.size) {
+                                    println("this is processedPokemonList: $processedPokemonList")
+                                    callback.onSuccess(processedPokemonList)
+                                }
+                            }
                         }
+                        snack = Snackbar.make(view, "Search is completed", Snackbar.LENGTH_LONG)
+                        snack.show()
+                        Log.i("Search Success", "Search completed successfully")
+                    } else {
+                        callback.onError("Failed to search pokemons.")
                     }
-                    snack = Snackbar.make(view, "Search is completed", Snackbar.LENGTH_LONG)
-                    snack.show()
-                    Log.i("Search Success", "Search completed successfully")
-                } else {
-                    callback.onError("Failed to search pokemons.")
                 }
-            }
 
-            override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                Log.e("On Failure Error", "Failure Error description: ${t.message}")
-            }
-        })
+                override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
+                    Log.e("On Failure Error", "Failure Error description: ${t.message}")
+                }
+            })
     }
 
 

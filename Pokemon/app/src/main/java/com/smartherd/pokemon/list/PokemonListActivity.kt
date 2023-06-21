@@ -11,9 +11,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
-import com.smartherd.pokemon.list.PokemonRepository.clearAllPokemons
-import com.smartherd.pokemon.list.PokemonRepository.loadPokemonPage
-import com.smartherd.pokemon.list.PokemonRepository.searchPokemonName
 import com.smartherd.pokemon.models.PokemonData
 
 
@@ -23,7 +20,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     private lateinit var pokemonAdapter: PokemonAdapter
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private var offset = 0
-    private var limiter = 20
+    private var searchLimiter = 10
     private var searchName = ""
     private val handler = Handler()
 
@@ -38,8 +35,10 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     }
 
     override fun onReachedBottomList() {
-        if (searchName.isEmpty()){
+        if (searchName.isEmpty()) {
             loadPokemon()
+        } else {
+            searchPokemon()
         }
     }
 
@@ -57,51 +56,54 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // Not needed for this implementation
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Not needed for this implementation
             }
+
             override fun afterTextChanged(s: Editable?) {
                 searchName = s.toString()
-                if (searchName.isNotEmpty()){
-                    handler.removeCallbacksAndMessages(null)
-                    handler.postDelayed({
-                        searchPokemon()
-                    }, 300)
-                } else {
-                    pokemonAdapter.clearItems()
+                handler.postDelayed({
                     offset = 0
-                    loadPokemon()
-                }
+                    pokemonAdapter.clearItems()
+                    if (searchName.isNotEmpty()) {
+                        searchPokemon()
+                    } else {
+                        loadPokemon()
+                    }
+                }, 300)
             }
         })
     }
 
-    private fun loadPokemon(){
-        loadPokemonPage(offset, object : PokemonCallback{
+    private fun loadPokemon() {
+        PokemonRepository.loadPokemonPage(offset, object : PokemonCallback {
             override fun onSuccess(pokemons: List<PokemonData>) {
                 pokemonAdapter.addItems(pokemons as MutableList<PokemonData>)
-                if (pokemons.size > 20 && offset == 0){
+                if (pokemons.size > 20 && offset == 0) {
                     offset = pokemons.size
                 } else {
                     offset += 20
                 }
             }
+
             override fun onError(error: String) {
                 Log.e("Failed Api", "Failed Api with error code: $error")
             }
         }, binding.root)
     }
 
-    private fun searchPokemon(){
-        searchPokemonName(searchName, object : PokemonCallback{
+    private fun searchPokemon() {
+        PokemonRepository.searchPokemonName(offset, searchName, object : PokemonCallback {
             override fun onSuccess(pokemons: List<PokemonData>) {
-                pokemonAdapter.clearItems()
                 pokemonAdapter.addItems(pokemons as MutableList<PokemonData>)
+                offset = pokemonAdapter.itemCount
             }
+
             override fun onError(error: String) {
                 Log.e("Failed Api", "Failed Api with error code: $error")
             }
-        }, binding.root, limiter)
+        }, binding.root)
     }
 
     private fun setupSwipeRefreshLayout() {
@@ -113,9 +115,9 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
 
     private fun refreshPokemonList() {
         pokemonAdapter.clearItems()
-        if (searchName.isEmpty()){
-            offset = 0
-            clearAllPokemons()
+        offset = 0
+        if (searchName.isEmpty()) {
+            PokemonRepository.clearAllPokemons()
             loadPokemon()
         } else {
             searchPokemon()
