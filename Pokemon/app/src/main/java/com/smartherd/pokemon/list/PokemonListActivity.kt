@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.util.Log
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
 import com.smartherd.pokemon.models.PokemonData
@@ -19,6 +20,7 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
     private lateinit var binding: ActivityPokemonListBinding
     private lateinit var pokemonAdapter: PokemonAdapter
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var snack: Snackbar
     private var offset = 0
     private var searchLimiter = 10
     private var searchName = ""
@@ -85,12 +87,19 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
                 } else {
                     offset += 20
                 }
+                snack = Snackbar.make(
+                    binding.root,
+                    "${pokemons.size} Pokemons has been loaded",
+                    Snackbar.LENGTH_LONG
+                )
+                snack.show()
+                Log.i("loadPokemon", "${pokemons.size} Pokemons loaded successfully")
             }
 
             override fun onError(error: String) {
-                Log.e("Failed Api", "Failed Api with error code: $error")
+                Log.e("loadPokemon", "Failed Api with error code: $error")
             }
-        }, binding.root)
+        })
     }
 
     private fun searchPokemon() {
@@ -98,12 +107,14 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             override fun onSuccess(pokemons: List<PokemonData>) {
                 pokemonAdapter.addItems(pokemons as MutableList<PokemonData>)
                 offset = pokemonAdapter.itemCount
+                snack = Snackbar.make(binding.root, "Search result: ${pokemonAdapter.itemCount} Pokemons", Snackbar.LENGTH_LONG)
+                snack.show()
+                Log.i("searchPokemon", "Search completed successfully with ${pokemonAdapter.itemCount} Pokemons")
             }
-
             override fun onError(error: String) {
-                Log.e("Failed Api", "Failed Api with error code: $error")
+                Log.e("searchPokemon", "Failed Api with error code: $error")
             }
-        }, binding.root)
+        })
     }
 
     private fun setupSwipeRefreshLayout() {

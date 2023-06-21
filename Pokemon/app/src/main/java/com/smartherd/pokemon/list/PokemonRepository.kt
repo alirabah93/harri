@@ -20,13 +20,12 @@ object PokemonRepository {
         ServiceBuilder.buildService(PokemonService::class.java)
     private val allPokemons = mutableListOf<PokemonData>()
     private lateinit var pokemonList: List<Pokemon>
-    private lateinit var snack: Snackbar
     private var pokemonResponse: PokemonListResponse? = null
     private var processedPokemonList = mutableListOf<PokemonData>()
     private const val PAGE_LIMIT = 20
 
 
-    fun loadPokemonPage(offset: Int, callback: PokemonCallback, view: View) {
+    fun loadPokemonPage(offset: Int, callback: PokemonCallback) {
         if (allPokemons.size > offset) {
             callback.onSuccess(allPokemons)
             return
@@ -51,32 +50,18 @@ object PokemonRepository {
                                 }
                             }
                         }
-                        snack = Snackbar.make(
-                            view,
-                            "+20 Pokemons has been loaded",
-                            Snackbar.LENGTH_LONG
-                        )
-                        snack.show()
-                        Log.i("Load Success", "Pokemons loaded successfully")
                     } else {
-                        snack = Snackbar.make(
-                            view,
-                            "failed to fetch Pokemons, pull to refresh",
-                            Snackbar.LENGTH_LONG
-                        )
-                        snack.show()
-                        Log.e("Load Error", "Failed to fetch pokemons.")
-                        callback.onError("Failed to fetch pokemons.")
+                        callback.onError("Load Response is not successful, Unknown Error.")
                     }
                 }
 
                 override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                    Log.e("On Failure Error", "Failure Error description: ${t.message}")
+                    callback.onError("onFailure, error message: $t.")
                 }
             })
     }
 
-    fun searchPokemonName(offset: Int, searchName: String, callback: PokemonCallback, view: View) {
+    fun searchPokemonName(offset: Int, searchName: String, callback: PokemonCallback) {
         pokemonService.getPokemonList(offset, 1000)
             .enqueue(object : Callback<PokemonListResponse> {
                 override fun onResponse(
@@ -94,21 +79,17 @@ object PokemonRepository {
                             getPokemonData(id, pokemon) { pokemonData ->
                                 processedPokemonList.add(pokemonData)
                                 if (processedPokemonList.size == pokemonList.size) {
-                                    println("this is processedPokemonList: $processedPokemonList")
                                     callback.onSuccess(processedPokemonList)
                                 }
                             }
                         }
-                        snack = Snackbar.make(view, "Search is completed", Snackbar.LENGTH_LONG)
-                        snack.show()
-                        Log.i("Search Success", "Search completed successfully")
                     } else {
-                        callback.onError("Failed to search pokemons.")
+                        callback.onError("Search Response is not successful, Unknown Error.")
                     }
                 }
 
                 override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                    Log.e("On Failure Error", "Failure Error description: ${t.message}")
+                    callback.onError("onFailure, error message: $t.")
                 }
             })
     }
@@ -120,7 +101,7 @@ object PokemonRepository {
         if (selectedPokemon != null) {
             callback.onSuccess(selectedPokemon)
         } else {
-            callback.onError("Failed to fetch pokemon's details.")
+            callback.onError("Selected Pokemon details is null.")
         }
 
     }
@@ -145,15 +126,14 @@ object PokemonRepository {
                     callback(pokemonData)
                     Log.i("Pokemons Data success", "Fetching Pokemons data completed successfully")
                 } else if (response.code() == 401) {
-                    Log.e("Pokemons Data Error 401", "Error code 401. Please try again.")
+                    Log.e("getPokemonData", "Error code 401. Please try again.")
                 } else {
-
-                    Log.e("Pokemons Data Error", "Unknown Error. Please try again.")
+                    Log.e("getPokemonData", "Response is not successful, Unknown Error.")
                 }
             }
 
             override fun onFailure(call: Call<PokemonDetail>, t: Throwable) {
-                Log.e("On Failure Error", "Failure Error description: ${t.message}")
+                Log.e("getPokemonData", "Failure Error description: ${t.message}")
             }
         })
     }
