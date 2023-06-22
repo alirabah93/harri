@@ -16,16 +16,21 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var positionChangeListener: OnPositionChangeListener? = null
+    private var hasMorePages = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_POKEMON) {
-            val view =
-                LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
-            PokemonViewHolder(view)
+            PokemonViewHolder(
+                LayoutInflater
+                .from(parent.context)
+                .inflate(R.layout.list_item, parent, false)
+            )
         } else {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.view_progress_bar, parent, false)
-            LoadingViewHolder(view)
+            LoadingViewHolder(
+                LayoutInflater
+                    .from(parent.context)
+                    .inflate(R.layout.view_progress_bar, parent, false)
+            )
         }
     }
 
@@ -55,16 +60,22 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         }
     }
 
-    override fun getItemCount(): Int = pokemonList.size
+    override fun getItemCount(): Int {
+        return if (pokemonList.isEmpty()) {
+            0
+        } else {
+            pokemonList.size + if (hasMorePages) 1 else 0
+        }
+    }
 
-    fun addItems(newItems: MutableList<PokemonData>) {
+    fun addItems(newItems: List<PokemonData>) {
         pokemonList += newItems
-        notifyDataSetChanged()
+        hasMorePages = newItems.size == PokemonRepository.PAGE_LIMIT
     }
 
     fun clearItems() {
         pokemonList = emptyList()
-        notifyDataSetChanged()
+        hasMorePages = true
     }
 
     interface OnPositionChangeListener {

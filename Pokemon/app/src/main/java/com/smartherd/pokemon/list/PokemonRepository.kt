@@ -19,10 +19,7 @@ object PokemonRepository {
     private val pokemonService: PokemonService =
         ServiceBuilder.buildService(PokemonService::class.java)
     private val allPokemons = mutableListOf<PokemonData>()
-    private lateinit var pokemonList: List<Pokemon>
-    private var pokemonResponse: PokemonListResponse? = null
-    private var processedPokemonList = mutableListOf<PokemonData>()
-    private const val PAGE_LIMIT = 20
+    const val PAGE_LIMIT = 20
 
 
     fun loadPokemonPage(offset: Int, callback: PokemonCallback) {
@@ -37,16 +34,16 @@ object PokemonRepository {
                     response: Response<PokemonListResponse>
                 ) {
                     if (response.isSuccessful) {
-                        pokemonResponse = response.body()
-                        pokemonList = pokemonResponse?.results ?: emptyList()
-                        processedPokemonList.clear()
+                        val responseBody = response.body()
+                        val pokemonList = responseBody?.results ?: emptyList()
+                        val pokemonsPage = mutableListOf<PokemonData>()
                         for (pokemon in pokemonList) {
                             val id = extractPokemonId(pokemon.url)
                             getPokemonData(id, pokemon) { pokemonData ->
-                                processedPokemonList.add(pokemonData)
-                                if (processedPokemonList.size == pokemonList.size) {
-                                    allPokemons.addAll(processedPokemonList)
-                                    callback.onSuccess(processedPokemonList)
+                                pokemonsPage.add(pokemonData)
+                                if (pokemonsPage.size == pokemonList.size) {
+                                    allPokemons.addAll(pokemonsPage)
+                                    callback.onSuccess(pokemonsPage)
                                 }
                             }
                         }
@@ -63,35 +60,36 @@ object PokemonRepository {
 
     fun searchPokemonName(offset: Int, searchName: String, callback: PokemonCallback) {
         pokemonService.getPokemonList(offset, 1000)
-            .enqueue(object : Callback<PokemonListResponse> {
-                override fun onResponse(
-                    call: Call<PokemonListResponse>,
-                    response: Response<PokemonListResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        pokemonResponse = response.body()
-                        pokemonList = pokemonResponse?.results?.filter { pokemon ->
-                            pokemon.name.startsWith(searchName, ignoreCase = true)
-                        } ?: emptyList()
-                        processedPokemonList.clear()
-                        for (pokemon in pokemonList) {
-                            val id = extractPokemonId(pokemon.url)
-                            getPokemonData(id, pokemon) { pokemonData ->
-                                processedPokemonList.add(pokemonData)
-                                if (processedPokemonList.size == pokemonList.size) {
-                                    callback.onSuccess(processedPokemonList)
-                                }
+            .enqueue(object : Callback<PokemonListResponse>
+        {
+            override fun onResponse(
+                call: Call<PokemonListResponse>,
+                response: Response<PokemonListResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    val pokemonList = responseBody?.results?.filter { pokemon ->
+                        pokemon.name.startsWith(searchName, ignoreCase = true)
+                    } ?: emptyList()
+                    val pokemonsPage = mutableListOf<PokemonData>()
+                    for (pokemon in pokemonList) {
+                        val id = extractPokemonId(pokemon.url)
+                        getPokemonData(id, pokemon) { pokemonData ->
+                            pokemonsPage.add(pokemonData)
+                            if (pokemonsPage.size == pokemonList.size) {
+                                callback.onSuccess(pokemonsPage)
                             }
                         }
-                    } else {
-                        callback.onError("Search Response is not successful, Unknown Error.")
                     }
+                } else {
+                    callback.onError("Search Response is not successful, Unknown Error.")
                 }
+            }
 
-                override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                    callback.onError("onFailure, error message: $t.")
-                }
-            })
+            override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
+                callback.onError("onFailure, error message: $t.")
+            }
+        })
     }
 
 
