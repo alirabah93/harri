@@ -16,7 +16,10 @@ import com.smartherd.pokemon.data.PokemonRepository
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
 
 
-class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
+class PokemonListActivity :
+    AppCompatActivity(),
+    OnPositionChangeListener,
+    OnLoadMoreClickListener {
 
     private lateinit var binding: ActivityPokemonListBinding
     private lateinit var viewModel: ListViewModel
@@ -44,6 +47,7 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
             } else {
                 pokemonAdapter.addItems(pokemons)
             }
+//            pokemonAdapter.addItems(pokemons)
             pokemonAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemons.size)
         }
 
@@ -57,6 +61,15 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
         if (searchName.isEmpty()) {
             viewModel.loadPokemon()
         }
+//        else {
+//            viewModel.searchPokemon(searchName)
+//        }
+    }
+
+    override fun onLoadMoreClick() {
+        viewModel.setOffset(+20)
+        viewModel.searchPokemon(searchName)
+        println("onLoadMoreClick is working")
     }
 
     private fun setupRecyclerView() {
@@ -76,6 +89,7 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
         pokemonAdapter = PokemonAdapter(emptyList())
         binding.pokemonRecyclerView.adapter = pokemonAdapter
         pokemonAdapter.setOnPositionChangeListener(this)
+        pokemonAdapter.setOnLoadMoreClickListener(this)
     }
 
     private fun setupSearchEditText() {
@@ -102,11 +116,7 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
                         viewModel.searchPokemon(searchName)
                         swipeRefreshLayout.isEnabled = false
                     }
-                    pokemonAdapter.notifyItemRangeInserted(
-                        viewModel.offset.value!!,
-                        pokemonAdapter.itemCount
-                    )
-                }, 300)
+                    pokemonAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemonAdapter.itemCount)                }, 300)
             }
         })
     }
@@ -125,4 +135,8 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
             swipeRefreshLayout.isRefreshing = false
         }
     }
+
+//    override fun onLoadMoreClick() {
+//        TODO("Not yet implemented")
+//    }
 }

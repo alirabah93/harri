@@ -12,12 +12,15 @@ import com.smartherd.pokemon.models.PokemonData
 
 private const val VIEW_TYPE_POKEMON = 0
 private const val VIEW_TYPE_PROGRESSBAR = 1
+private const val VIEW_TYPE_LOAD_MORE = 2
 
 class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var positionChangeListener: OnPositionChangeListener? = null
+    private var loadMoreClickListener: OnLoadMoreClickListener? = null
     private var hasMorePages = true
+    private var searchMode = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_POKEMON) {
@@ -25,6 +28,12 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
                 LayoutInflater
                     .from(parent.context)
                     .inflate(R.layout.list_item, parent, false)
+            )
+        } else if (viewType == VIEW_TYPE_LOAD_MORE) {
+            LoadingViewHolder(
+                LayoutInflater
+                    .from(parent.context)
+                    .inflate(R.layout.load_more_button, parent, false)
             )
         } else {
             LoadingViewHolder(
@@ -36,25 +45,35 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val viewType = getItemViewType(position)
 
-        if (viewType == VIEW_TYPE_POKEMON) {
-            (holder as PokemonViewHolder).bindPokemon(pokemonList[position])
-            holder.itemView.setOnClickListener { v ->
-                val context = v.context
-                val selectedPokemon = pokemonList[position]
-                val intent = Intent(context, PokemonDetailActivity::class.java).apply {
-                    putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON_ID, selectedPokemon.id)
+        when (getItemViewType(position)) {
+            VIEW_TYPE_POKEMON -> {
+                (holder as PokemonViewHolder).bindPokemon(pokemonList[position])
+                holder.itemView.setOnClickListener { v ->
+                    val context = v.context
+                    val selectedPokemon = pokemonList[position]
+                    val intent = Intent(context, PokemonDetailActivity::class.java).apply {
+                        putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON_ID, selectedPokemon.id)
+                    }
+                    context.startActivity(intent)
                 }
-                context.startActivity(intent)
             }
-        } else {
-            positionChangeListener?.onReachedBottomList()
+            VIEW_TYPE_LOAD_MORE -> {
+                holder.itemView.setOnClickListener {
+                    loadMoreClickListener?.onLoadMoreClick()
+                }
+            }
+            else -> {
+                positionChangeListener?.onReachedBottomList()
+            }
         }
+
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) {
+        return if (position == itemCount - 1 && searchMode) {
+            VIEW_TYPE_LOAD_MORE
+        } else if (position == itemCount - 1) {
             VIEW_TYPE_PROGRESSBAR
         } else {
             VIEW_TYPE_POKEMON
@@ -72,12 +91,14 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     fun addItems(newItems: List<PokemonData>) {
         pokemonList += newItems
         hasMorePages = newItems.size == PokemonRepository.PAGE_LIMIT
+        searchMode = false
     }
 
     @SuppressLint("NotifyDataSetChanged")
     fun searchItems(newItems: List<PokemonData>) {
-        pokemonList = newItems
+        pokemonList += newItems
         hasMorePages = newItems.size == PokemonRepository.PAGE_LIMIT
+        searchMode = true
         notifyDataSetChanged()
     }
 
@@ -88,6 +109,10 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
 
     fun setOnPositionChangeListener(listener: OnPositionChangeListener) {
         positionChangeListener = listener
+    }
+
+    fun setOnLoadMoreClickListener(listener: PokemonListActivity) {
+        loadMoreClickListener = listener
     }
 
 }

@@ -59,7 +59,7 @@ object PokemonRepository {
     }
 
     fun searchPokemonName(offset: Int, searchName: String, callback: PokemonCallback) {
-        pokemonService.getPokemonList(offset, 1000)
+        pokemonService.getPokemonList(offset, PAGE_LIMIT)
             .enqueue(object : Callback<PokemonListResponse> {
                 override fun onResponse(
                     call: Call<PokemonListResponse>,
@@ -94,24 +94,15 @@ object PokemonRepository {
 
 
     fun loadPokemonDetails(id: Int, callback: PokemonDetailsCallback) {
+        val selectedPokemon = searchedPokemons.find { it.id == id } ?: allPokemons.find { it.id == id }
 
-        if (searchedPokemons.isEmpty()) {
-            val selectedPokemon = allPokemons.find { it.id == id }
-            if (selectedPokemon != null) {
-                callback.onSuccess(selectedPokemon)
-            } else {
-                callback.onError("Selected Pokemon details is null.")
-            }
+        if (selectedPokemon != null) {
+            callback.onSuccess(selectedPokemon)
         } else {
-            val selectedPokemon = searchedPokemons.find { it.id == id }
-            if (selectedPokemon != null) {
-                callback.onSuccess(selectedPokemon)
-            } else {
-                callback.onError("Selected Pokemon details is null.")
-            }
+            callback.onError("Selected Pokemon details are null.")
         }
-
     }
+
 
     private fun getPokemonData(id: Int, pokemon: Pokemon, callback: (PokemonData) -> Unit) {
         pokemonService.getPokemonDetail(id).enqueue(object : Callback<PokemonDetail> {
