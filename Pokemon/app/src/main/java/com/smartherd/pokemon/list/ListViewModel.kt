@@ -38,6 +38,7 @@ class ListViewModel : ViewModel() {
     }
 
     fun searchPokemon(searchName: String) {
+        PokemonRepository.clearSearchedPokemons()
         PokemonRepository.searchPokemonName(_offset.value!!, searchName, object : PokemonCallback {
             override fun onSuccess(pokemons: List<PokemonData>) {
                 _pokemonList.value = pokemons

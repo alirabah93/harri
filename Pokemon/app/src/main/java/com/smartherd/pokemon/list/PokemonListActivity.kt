@@ -7,7 +7,6 @@ import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -40,7 +39,11 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
         viewModel.loadPokemon()
 
         viewModel.pokemonList.observe(this) { pokemons ->
-            pokemonAdapter.addItems(pokemons)
+            if (searchName.isNotEmpty()) {
+                pokemonAdapter.searchItems(pokemons)
+            } else {
+                pokemonAdapter.addItems(pokemons)
+            }
             pokemonAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemons.size)
         }
 
@@ -54,9 +57,6 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
         if (searchName.isEmpty()) {
             viewModel.loadPokemon()
         }
-//        else {
-//            viewModel.searchPokemon(searchName)
-//        }
     }
 
     private fun setupRecyclerView() {
@@ -78,7 +78,6 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
         pokemonAdapter.setOnPositionChangeListener(this)
     }
 
-
     private fun setupSearchEditText() {
         binding.searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -93,13 +92,20 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
                 searchName = s.toString()
                 handler.postDelayed({
                     viewModel.setOffset(0)
+                    val count = pokemonAdapter.itemCount
                     pokemonAdapter.clearItems()
+                    pokemonAdapter.notifyItemRangeRemoved(0, count)
                     if (searchName.isEmpty()) {
                         viewModel.loadPokemon()
+                        swipeRefreshLayout.isEnabled = true
                     } else {
                         viewModel.searchPokemon(searchName)
+                        swipeRefreshLayout.isEnabled = false
                     }
-                    pokemonAdapter.notifyItemRangeRemoved(0, pokemonAdapter.itemCount)
+                    pokemonAdapter.notifyItemRangeInserted(
+                        viewModel.offset.value!!,
+                        pokemonAdapter.itemCount
+                    )
                 }, 300)
             }
         })
@@ -109,17 +115,12 @@ class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
         swipeRefreshLayout = binding.swipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener {
             if (searchName.isEmpty()) {
-                swipeRefreshLayout.isEnabled = true
-                swipeRefreshLayout.visibility = View.VISIBLE
                 val count = pokemonAdapter.itemCount
                 pokemonAdapter.clearItems()
                 pokemonAdapter.notifyItemRangeRemoved(0, count)
                 viewModel.setOffset(0)
                 PokemonRepository.clearAllPokemons()
                 viewModel.loadPokemon()
-            } else {
-                swipeRefreshLayout.isEnabled = false
-                swipeRefreshLayout.visibility = View.GONE
             }
             swipeRefreshLayout.isRefreshing = false
         }

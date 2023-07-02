@@ -1,12 +1,12 @@
 package com.smartherd.pokemon.list
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.data.PokemonRepository
-
 import com.smartherd.pokemon.detail.PokemonDetailActivity
 import com.smartherd.pokemon.models.PokemonData
 
@@ -72,6 +72,13 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     fun addItems(newItems: List<PokemonData>) {
         pokemonList += newItems
         hasMorePages = newItems.size == PokemonRepository.PAGE_LIMIT
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun searchItems(newItems: List<PokemonData>) {
+        pokemonList = newItems
+        hasMorePages = newItems.size == PokemonRepository.PAGE_LIMIT
+        notifyDataSetChanged()
     }
 
     fun clearItems() {

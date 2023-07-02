@@ -21,6 +21,7 @@ class PokemonDetailActivity : AppCompatActivity() {
     private lateinit var pokemonDetailAdapter: PokemonDetailAdapter
     private lateinit var viewModel: DetailViewModel
 
+
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +58,8 @@ class PokemonDetailActivity : AppCompatActivity() {
         viewModel.error.observe(this) { error ->
             Log.e("PokemonListActivity", "API Error: $error")
         }
+
+
     }
 
     private fun loadImage(imageUrl: String) {

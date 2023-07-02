@@ -16,7 +16,6 @@ class DetailViewModel : ViewModel() {
     val selectedPokemon: LiveData<PokemonData> get() = _selectedPokemon
     val error: LiveData<String> get() = _error
 
-
     fun getPokemonDetails(id: Int) {
         PokemonRepository.loadPokemonDetails(id, object : PokemonDetailsCallback {
             override fun onSuccess(pokemon: PokemonData) {

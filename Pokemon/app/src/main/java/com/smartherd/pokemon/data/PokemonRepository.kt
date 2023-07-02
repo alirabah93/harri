@@ -18,6 +18,7 @@ object PokemonRepository {
     private val pokemonService: PokemonService =
         ServiceBuilder.buildService(PokemonService::class.java)
     private val allPokemons = mutableListOf<PokemonData>()
+    private val searchedPokemons = mutableListOf<PokemonData>()
     const val PAGE_LIMIT = 20
 
 
@@ -75,6 +76,7 @@ object PokemonRepository {
                             getPokemonData(id, pokemon) { pokemonData ->
                                 pokemonsPage.add(pokemonData)
                                 if (pokemonsPage.size == pokemonList.size) {
+                                    searchedPokemons.addAll(pokemonsPage)
                                     callback.onSuccess(pokemonsPage)
                                 }
                             }
@@ -93,11 +95,20 @@ object PokemonRepository {
 
     fun loadPokemonDetails(id: Int, callback: PokemonDetailsCallback) {
 
-        val selectedPokemon = allPokemons.find { it.id == id }
-        if (selectedPokemon != null) {
-            callback.onSuccess(selectedPokemon)
+        if (searchedPokemons.isEmpty()) {
+            val selectedPokemon = allPokemons.find { it.id == id }
+            if (selectedPokemon != null) {
+                callback.onSuccess(selectedPokemon)
+            } else {
+                callback.onError("Selected Pokemon details is null.")
+            }
         } else {
-            callback.onError("Selected Pokemon details is null.")
+            val selectedPokemon = searchedPokemons.find { it.id == id }
+            if (selectedPokemon != null) {
+                callback.onSuccess(selectedPokemon)
+            } else {
+                callback.onError("Selected Pokemon details is null.")
+            }
         }
 
     }
@@ -142,5 +153,9 @@ object PokemonRepository {
 
     fun clearAllPokemons() {
         allPokemons.clear()
+    }
+
+    fun clearSearchedPokemons() {
+        searchedPokemons.clear()
     }
 }
