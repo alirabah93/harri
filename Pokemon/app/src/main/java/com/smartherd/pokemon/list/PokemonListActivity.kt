@@ -47,7 +47,6 @@ class PokemonListActivity :
             } else {
                 pokemonAdapter.addItems(pokemons)
             }
-//            pokemonAdapter.addItems(pokemons)
             pokemonAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemons.size)
         }
 
@@ -61,15 +60,10 @@ class PokemonListActivity :
         if (searchName.isEmpty()) {
             viewModel.loadPokemon()
         }
-//        else {
-//            viewModel.searchPokemon(searchName)
-//        }
     }
 
     override fun onLoadMoreClick() {
-        viewModel.setOffset(+20)
         viewModel.searchPokemon(searchName)
-        println("onLoadMoreClick is working")
     }
 
     private fun setupRecyclerView() {
@@ -136,7 +130,4 @@ class PokemonListActivity :
         }
     }
 
-//    override fun onLoadMoreClick() {
-//        TODO("Not yet implemented")
-//    }
 }

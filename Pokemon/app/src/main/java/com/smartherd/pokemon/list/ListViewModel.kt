@@ -10,7 +10,8 @@ class ListViewModel : ViewModel() {
 
     private val _pokemonList = MutableLiveData<List<PokemonData>>()
     private val _error = MutableLiveData<String>()
-    private var _offset = MutableLiveData(0)
+    private val _offset = MutableLiveData(0)
+    private val searchPageLimit = 100
 
     val pokemonList: LiveData<List<PokemonData>> get() = _pokemonList
     val error: LiveData<String> get() = _error
@@ -39,16 +40,20 @@ class ListViewModel : ViewModel() {
 
     fun searchPokemon(searchName: String) {
         PokemonRepository.clearSearchedPokemons()
-        PokemonRepository.searchPokemonName(_offset.value!!, searchName, object : PokemonCallback {
-            override fun onSuccess(pokemons: List<PokemonData>) {
-                _pokemonList.value = pokemons
-                _offset.value = _offset.value!! + pokemons.size
-            }
+        PokemonRepository.searchPokemonName(
+            _offset.value!!,
+            searchPageLimit,
+            searchName,
+            object : PokemonCallback {
+                override fun onSuccess(pokemons: List<PokemonData>) {
+                    _pokemonList.value = pokemons
+                    _offset.value = _offset.value!! + searchPageLimit
+                }
 
-            override fun onError(error: String) {
-                _error.value = error
-            }
-        })
+                override fun onError(error: String) {
+                    _error.value = error
+                }
+            })
     }
 
 }

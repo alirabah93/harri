@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.data.PokemonRepository
@@ -23,24 +24,32 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     private var searchMode = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_POKEMON) {
-            PokemonViewHolder(
-                LayoutInflater
-                    .from(parent.context)
-                    .inflate(R.layout.list_item, parent, false)
-            )
-        } else if (viewType == VIEW_TYPE_LOAD_MORE) {
-            LoadingViewHolder(
-                LayoutInflater
-                    .from(parent.context)
+        return when (viewType) {
+            VIEW_TYPE_POKEMON -> {
+                PokemonViewHolder(
+                    LayoutInflater
+                        .from(parent.context)
+                        .inflate(R.layout.list_item, parent, false)
+                )
+            }
+
+            VIEW_TYPE_LOAD_MORE -> {
+                val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.load_more_button, parent, false)
-            )
-        } else {
-            LoadingViewHolder(
-                LayoutInflater
-                    .from(parent.context)
-                    .inflate(R.layout.view_progress_bar, parent, false)
-            )
+                val button = view.findViewById<Button>(R.id.load_more_button)
+                button.setOnClickListener {
+                    loadMoreClickListener?.onLoadMoreClick()
+                }
+                LoadingViewHolder(view)
+            }
+
+            else -> {
+                LoadingViewHolder(
+                    LayoutInflater
+                        .from(parent.context)
+                        .inflate(R.layout.view_progress_bar, parent, false)
+                )
+            }
         }
     }
 
@@ -58,11 +67,13 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
                     context.startActivity(intent)
                 }
             }
+
             VIEW_TYPE_LOAD_MORE -> {
                 holder.itemView.setOnClickListener {
                     loadMoreClickListener?.onLoadMoreClick()
                 }
             }
+
             else -> {
                 positionChangeListener?.onReachedBottomList()
             }
