@@ -8,48 +8,63 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.google.android.material.snackbar.Snackbar
 import com.smartherd.pokemon.R
+import com.smartherd.pokemon.data.PokemonRepository
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
-import com.smartherd.pokemon.models.PokemonData
 
 
-class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChangeListener {
+class PokemonListActivity : AppCompatActivity(), OnPositionChangeListener {
 
     private lateinit var binding: ActivityPokemonListBinding
+    private lateinit var viewModel: ListViewModel
     private lateinit var pokemonAdapter: PokemonAdapter
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    private lateinit var snack: Snackbar
-    private var offset = 0
-    private var searchName = ""
     private val handler = Handler()
+    private var searchName = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPokemonListBinding.inflate(layoutInflater)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_pokemon_list)
         setContentView(binding.root)
+
+        viewModel = ViewModelProvider(this)[ListViewModel::class.java]
+
         setupRecyclerView()
         setupSwipeRefreshLayout()
-        loadPokemon()
         setupSearchEditText()
+
+        viewModel.loadPokemon()
+
+        viewModel.pokemonList.observe(this) { pokemons ->
+            pokemonAdapter.addItems(pokemons)
+            pokemonAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemons.size)
+        }
+
+        viewModel.error.observe(this) { error ->
+            Log.e("PokemonListActivity", "API Error: $error")
+        }
+
     }
 
     override fun onReachedBottomList() {
         if (searchName.isEmpty()) {
-            loadPokemon()
-        } else {
-            searchPokemon()
+            viewModel.loadPokemon()
         }
+//        else {
+//            viewModel.searchPokemon(searchName)
+//        }
     }
 
     private fun setupRecyclerView() {
         val spanCount = resources.getInteger(R.integer.span_count)
-        val gridLayoutManager = (GridLayoutManager(this, spanCount))
+        val gridLayoutManager = GridLayoutManager(this, spanCount)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return if (position == pokemonAdapter.itemCount - 1){
+                return if (position == pokemonAdapter.itemCount - 1) {
                     spanCount
                 } else {
                     1
@@ -57,10 +72,10 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             }
         }
         binding.pokemonRecyclerView.layoutManager = gridLayoutManager
+
         pokemonAdapter = PokemonAdapter(emptyList())
         binding.pokemonRecyclerView.adapter = pokemonAdapter
         pokemonAdapter.setOnPositionChangeListener(this)
-//        binding.pokemonRecyclerView.swapAdapter(SearchAdapter)
     }
 
 
@@ -77,58 +92,15 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
             override fun afterTextChanged(s: Editable?) {
                 searchName = s.toString()
                 handler.postDelayed({
-                    offset = 0
-                    val pokemonsCount = pokemonAdapter.itemCount
+                    viewModel.setOffset(0)
                     pokemonAdapter.clearItems()
-                    pokemonAdapter.notifyItemRangeRemoved(0, pokemonsCount)
-                    if (searchName.isNotEmpty()) {
-                        searchPokemon()
+                    if (searchName.isEmpty()) {
+                        viewModel.loadPokemon()
                     } else {
-                        loadPokemon()
+                        viewModel.searchPokemon(searchName)
                     }
+                    pokemonAdapter.notifyItemRangeRemoved(0, pokemonAdapter.itemCount)
                 }, 300)
-            }
-        })
-    }
-
-    private fun loadPokemon() {
-        PokemonRepository.loadPokemonPage(offset, object : PokemonCallback {
-            override fun onSuccess(pokemons: List<PokemonData>) {
-                pokemonAdapter.addItems(pokemons)
-                pokemonAdapter.notifyItemRangeInserted(offset, pokemons.size)
-                if (pokemons.size > 20 && offset == 0) {
-                    offset = pokemons.size
-                } else {
-                    offset += 20
-                }
-                snack = Snackbar.make(
-                    binding.root,
-                    "${pokemons.size} Pokemons has been loaded",
-                    Snackbar.LENGTH_LONG
-                )
-//                snack.show()
-                Log.i("loadPokemon", "${pokemons.size} Pokemons loaded successfully")
-            }
-
-            override fun onError(error: String) {
-                Log.e("loadPokemon", "Failed Api with error code: $error")
-            }
-        })
-    }
-
-    private fun searchPokemon() {
-        swipeRefreshLayout.isRefreshing = false
-        PokemonRepository.searchPokemonName(offset, searchName, object : PokemonCallback {
-            override fun onSuccess(pokemons: List<PokemonData>) {
-                pokemonAdapter.addItems(pokemons)
-                pokemonAdapter.notifyItemRangeInserted(0, pokemons.size)
-                offset = pokemonAdapter.itemCount
-                snack = Snackbar.make(binding.root, "Search result: ${pokemonAdapter.itemCount} Pokemons", Snackbar.LENGTH_LONG)
-                snack.show()
-                Log.i("searchPokemon", "Search completed successfully with ${pokemonAdapter.itemCount} Pokemons")
-            }
-            override fun onError(error: String) {
-                Log.e("searchPokemon", "Failed Api with error code: $error")
             }
         })
     }
@@ -137,15 +109,19 @@ class PokemonListActivity : AppCompatActivity(), PokemonAdapter.OnPositionChange
         swipeRefreshLayout = binding.swipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener {
             if (searchName.isEmpty()) {
+                swipeRefreshLayout.isEnabled = true
+                swipeRefreshLayout.visibility = View.VISIBLE
                 val count = pokemonAdapter.itemCount
                 pokemonAdapter.clearItems()
                 pokemonAdapter.notifyItemRangeRemoved(0, count)
-                offset = 0
+                viewModel.setOffset(0)
                 PokemonRepository.clearAllPokemons()
-                loadPokemon()
+                viewModel.loadPokemon()
+            } else {
+                swipeRefreshLayout.isEnabled = false
+                swipeRefreshLayout.visibility = View.GONE
             }
             swipeRefreshLayout.isRefreshing = false
         }
     }
-
 }

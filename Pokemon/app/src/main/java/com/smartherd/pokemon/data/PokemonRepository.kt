@@ -1,9 +1,8 @@
-package com.smartherd.pokemon.list
+package com.smartherd.pokemon.data
 
 import android.util.Log
-import android.view.View
-import com.google.android.material.snackbar.Snackbar
 import com.smartherd.pokemon.detail.PokemonDetailsCallback
+import com.smartherd.pokemon.list.PokemonCallback
 import com.smartherd.pokemon.models.Pokemon
 import com.smartherd.pokemon.models.PokemonData
 import com.smartherd.pokemon.models.PokemonDetail
@@ -60,36 +59,35 @@ object PokemonRepository {
 
     fun searchPokemonName(offset: Int, searchName: String, callback: PokemonCallback) {
         pokemonService.getPokemonList(offset, 1000)
-            .enqueue(object : Callback<PokemonListResponse>
-        {
-            override fun onResponse(
-                call: Call<PokemonListResponse>,
-                response: Response<PokemonListResponse>
-            ) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    val pokemonList = responseBody?.results?.filter { pokemon ->
-                        pokemon.name.startsWith(searchName, ignoreCase = true)
-                    } ?: emptyList()
-                    val pokemonsPage = mutableListOf<PokemonData>()
-                    for (pokemon in pokemonList) {
-                        val id = extractPokemonId(pokemon.url)
-                        getPokemonData(id, pokemon) { pokemonData ->
-                            pokemonsPage.add(pokemonData)
-                            if (pokemonsPage.size == pokemonList.size) {
-                                callback.onSuccess(pokemonsPage)
+            .enqueue(object : Callback<PokemonListResponse> {
+                override fun onResponse(
+                    call: Call<PokemonListResponse>,
+                    response: Response<PokemonListResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        val pokemonList = responseBody?.results?.filter { pokemon ->
+                            pokemon.name.startsWith(searchName, ignoreCase = true)
+                        } ?: emptyList()
+                        val pokemonsPage = mutableListOf<PokemonData>()
+                        for (pokemon in pokemonList) {
+                            val id = extractPokemonId(pokemon.url)
+                            getPokemonData(id, pokemon) { pokemonData ->
+                                pokemonsPage.add(pokemonData)
+                                if (pokemonsPage.size == pokemonList.size) {
+                                    callback.onSuccess(pokemonsPage)
+                                }
                             }
                         }
+                    } else {
+                        callback.onError("Search Response is not successful, Unknown Error.")
                     }
-                } else {
-                    callback.onError("Search Response is not successful, Unknown Error.")
                 }
-            }
 
-            override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
-                callback.onError("onFailure, error message: $t.")
-            }
-        })
+                override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
+                    callback.onError("onFailure, error message: $t.")
+                }
+            })
     }
 
 

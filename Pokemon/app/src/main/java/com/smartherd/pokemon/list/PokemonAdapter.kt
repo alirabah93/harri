@@ -2,10 +2,11 @@ package com.smartherd.pokemon.list
 
 import android.content.Intent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
+import com.smartherd.pokemon.data.PokemonRepository
+
 import com.smartherd.pokemon.detail.PokemonDetailActivity
 import com.smartherd.pokemon.models.PokemonData
 
@@ -22,8 +23,8 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         return if (viewType == VIEW_TYPE_POKEMON) {
             PokemonViewHolder(
                 LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.list_item, parent, false)
+                    .from(parent.context)
+                    .inflate(R.layout.list_item, parent, false)
             )
         } else {
             LoadingViewHolder(
@@ -78,13 +79,8 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
         hasMorePages = true
     }
 
-    interface OnPositionChangeListener {
-        fun onReachedBottomList()
-    }
-
     fun setOnPositionChangeListener(listener: OnPositionChangeListener) {
         positionChangeListener = listener
     }
 
-    class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

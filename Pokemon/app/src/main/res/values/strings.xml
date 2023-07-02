@@ -5,8 +5,8 @@
     <string name="search_pokemon">Search Pokemon</string>
     <string name="error_loading_pokemon_list">Error loading Pokemon list.</string>
     <string name="no_items_found">No items found.</string>
-    <string name="pokemon_weight">pokemon weight</string>
-    <string name="pokemon_height">pokemon height</string>
+    <string name="pokemon_weight">%d kg</string>
+    <string name="pokemon_height">%d meters</string>
     <string name="base_stats">Base Stats</string>
     <string name="stat_name">Attack</string>
     <string name="stat_int">50</string>
