@@ -8,13 +8,14 @@ import androidx.lifecycle.ViewModel
 import com.smartherd.pokemon.data.PokemonRepository
 import com.smartherd.pokemon.models.PokemonData
 
-class DetailViewModel : ViewModel() {
+class PokemonDetailViewModel : ViewModel() {
 
     private val _selectedPokemon = MutableLiveData<PokemonData>()
-    private val _error = MutableLiveData<String>()
-
     val selectedPokemon: LiveData<PokemonData> get() = _selectedPokemon
+
+    private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
+
 
     fun getPokemonDetails(id: Int) {
         PokemonRepository.loadPokemonDetails(id, object : PokemonDetailsCallback {

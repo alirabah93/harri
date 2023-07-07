@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="detailViewModel"
-            type="com.smartherd.pokemon.detail.DetailViewModel" />
+            name="pokemonDetailViewModel"
+            type="com.smartherd.pokemon.detail.PokemonDetailViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:text="@{@string/pokemon_weight(detailViewModel.selectedPokemon.weight)}"
+                    android:text="@{@string/pokemon_weight(pokemonDetailViewModel.selectedPokemon.weight)}"
                     android:textColor="#FFFFFF"
                     android:textSize="20sp" />
 
@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="end"
-                    android:text="@{@string/pokemon_height(detailViewModel.selectedPokemon.height)}"
+                    android:text="@{@string/pokemon_height(pokemonDetailViewModel.selectedPokemon.height)}"
                     android:textColor="#FFFFFF"
                     android:textSize="20sp" />
 

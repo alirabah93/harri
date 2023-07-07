@@ -1,6 +1,7 @@
 package com.smartherd.pokemon.list
 
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.data.PokemonRepository
 import com.smartherd.pokemon.databinding.ActivityPokemonListBinding
+import com.smartherd.pokemon.detail.PokemonDetailActivity
 
 
 class PokemonListActivity :
@@ -22,8 +24,8 @@ class PokemonListActivity :
     OnLoadMoreClickListener {
 
     private lateinit var binding: ActivityPokemonListBinding
-    private lateinit var viewModel: ListViewModel
-    private lateinit var pokemonAdapter: PokemonAdapter
+    private lateinit var viewModel: PokemonListViewModel
+    private lateinit var pokemonListAdapter: PokemonListAdapter
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val handler = Handler()
     private var searchName = ""
@@ -33,7 +35,7 @@ class PokemonListActivity :
         binding = DataBindingUtil.setContentView(this, R.layout.activity_pokemon_list)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[ListViewModel::class.java]
+        viewModel = ViewModelProvider(this)[PokemonListViewModel::class.java]
 
         setupRecyclerView()
         setupSwipeRefreshLayout()
@@ -43,11 +45,11 @@ class PokemonListActivity :
 
         viewModel.pokemonList.observe(this) { pokemons ->
             if (searchName.isNotEmpty()) {
-                pokemonAdapter.searchItems(pokemons)
+                pokemonListAdapter.searchItems(pokemons)
             } else {
-                pokemonAdapter.addItems(pokemons)
+                pokemonListAdapter.addItems(pokemons)
             }
-            pokemonAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemons.size)
+            pokemonListAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemons.size)
         }
 
         viewModel.error.observe(this) { error ->
@@ -71,7 +73,7 @@ class PokemonListActivity :
         val gridLayoutManager = GridLayoutManager(this, spanCount)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return if (position == pokemonAdapter.itemCount - 1) {
+                return if (position == pokemonListAdapter.itemCount - 1) {
                     spanCount
                 } else {
                     1
@@ -80,10 +82,15 @@ class PokemonListActivity :
         }
         binding.pokemonRecyclerView.layoutManager = gridLayoutManager
 
-        pokemonAdapter = PokemonAdapter(emptyList())
-        binding.pokemonRecyclerView.adapter = pokemonAdapter
-        pokemonAdapter.setOnPositionChangeListener(this)
-        pokemonAdapter.setOnLoadMoreClickListener(this)
+        pokemonListAdapter = PokemonListAdapter(emptyList()) {
+            val intent = Intent(this, PokemonDetailActivity::class.java).apply {
+                putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON_ID, it.id)
+            }
+            startActivity(intent)
+        }
+        binding.pokemonRecyclerView.adapter = pokemonListAdapter
+        pokemonListAdapter.setOnPositionChangeListener(this)
+        pokemonListAdapter.setOnLoadMoreClickListener(this)
     }
 
     private fun setupSearchEditText() {
@@ -100,9 +107,9 @@ class PokemonListActivity :
                 searchName = s.toString()
                 handler.postDelayed({
                     viewModel.setOffset(0)
-                    val count = pokemonAdapter.itemCount
-                    pokemonAdapter.clearItems()
-                    pokemonAdapter.notifyItemRangeRemoved(0, count)
+                    val count = pokemonListAdapter.itemCount
+                    pokemonListAdapter.clearItems()
+                    pokemonListAdapter.notifyItemRangeRemoved(0, count)
                     if (searchName.isEmpty()) {
                         viewModel.loadPokemon()
                         swipeRefreshLayout.isEnabled = true
@@ -110,7 +117,7 @@ class PokemonListActivity :
                         viewModel.searchPokemon(searchName)
                         swipeRefreshLayout.isEnabled = false
                     }
-                    pokemonAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemonAdapter.itemCount)                }, 300)
+                    pokemonListAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemonListAdapter.itemCount)                }, 300)
             }
         })
     }
@@ -119,9 +126,9 @@ class PokemonListActivity :
         swipeRefreshLayout = binding.swipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener {
             if (searchName.isEmpty()) {
-                val count = pokemonAdapter.itemCount
-                pokemonAdapter.clearItems()
-                pokemonAdapter.notifyItemRangeRemoved(0, count)
+                val count = pokemonListAdapter.itemCount
+                pokemonListAdapter.clearItems()
+                pokemonListAdapter.notifyItemRangeRemoved(0, count)
                 viewModel.setOffset(0)
                 PokemonRepository.clearAllPokemons()
                 viewModel.loadPokemon()

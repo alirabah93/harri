@@ -5,9 +5,11 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.data.PokemonRepository
+import com.smartherd.pokemon.databinding.ListItemBinding
 import com.smartherd.pokemon.detail.PokemonDetailActivity
 import com.smartherd.pokemon.models.PokemonData
 
@@ -15,7 +17,9 @@ private const val VIEW_TYPE_POKEMON = 0
 private const val VIEW_TYPE_PROGRESSBAR = 1
 private const val VIEW_TYPE_LOAD_MORE = 2
 
-class PokemonAdapter(private var pokemonList: List<PokemonData>) :
+class PokemonListAdapter(private var pokemonList: List<PokemonData>,
+                         private val onPokemonItemClicked: (pokemon: PokemonData) -> Unit
+    ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var positionChangeListener: OnPositionChangeListener? = null
@@ -26,11 +30,17 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_POKEMON -> {
-                PokemonViewHolder(
-                    LayoutInflater
-                        .from(parent.context)
-                        .inflate(R.layout.list_item, parent, false)
+                val binding: ListItemBinding = DataBindingUtil.inflate(
+                    LayoutInflater.from(parent.context),
+                    R.layout.list_item,
+                    parent,
+                    false
                 )
+                PokemonListViewHolder(binding, onPokemonItemClicked)
+//                PokemonViewHolder(
+//                    DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.list_item, parent, false),
+//                    onPokemonItemClicked
+//                )
             }
 
             VIEW_TYPE_LOAD_MORE -> {
@@ -57,7 +67,7 @@ class PokemonAdapter(private var pokemonList: List<PokemonData>) :
 
         when (getItemViewType(position)) {
             VIEW_TYPE_POKEMON -> {
-                (holder as PokemonViewHolder).bindPokemon(pokemonList[position])
+                (holder as PokemonListViewHolder).bindPokemon(pokemonList[position])
                 holder.itemView.setOnClickListener { v ->
                     val context = v.context
                     val selectedPokemon = pokemonList[position]

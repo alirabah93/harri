@@ -19,7 +19,7 @@ class PokemonDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPokemonDetailBinding
     private lateinit var pokemonDetailAdapter: PokemonDetailAdapter
-    private lateinit var viewModel: DetailViewModel
+    private lateinit var viewModel: PokemonDetailViewModel
 
 
     @SuppressLint("SetTextI18n")
@@ -42,9 +42,9 @@ class PokemonDetailActivity : AppCompatActivity() {
     }
 
     private fun initializeViewModel(id: Int) {
-        viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
+        viewModel = ViewModelProvider(this)[PokemonDetailViewModel::class.java]
         viewModel.getPokemonDetails(id)
-        binding.detailViewModel = viewModel
+        binding.pokemonDetailViewModel = viewModel
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
