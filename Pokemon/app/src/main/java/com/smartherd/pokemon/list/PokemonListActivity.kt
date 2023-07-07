@@ -35,7 +35,9 @@ class PokemonListActivity :
         binding = DataBindingUtil.setContentView(this, R.layout.activity_pokemon_list)
         setContentView(binding.root)
 
+
         viewModel = ViewModelProvider(this)[PokemonListViewModel::class.java]
+        binding.viewModel = viewModel
 
         setupRecyclerView()
         setupSwipeRefreshLayout()
@@ -117,7 +119,11 @@ class PokemonListActivity :
                         viewModel.searchPokemon(searchName)
                         swipeRefreshLayout.isEnabled = false
                     }
-                    pokemonListAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemonListAdapter.itemCount)                }, 300)
+                    pokemonListAdapter.notifyItemRangeInserted(
+                        viewModel.offset.value!!,
+                        pokemonListAdapter.itemCount
+                    )
+                }, 300)
             }
         })
     }
@@ -136,5 +142,6 @@ class PokemonListActivity :
             swipeRefreshLayout.isRefreshing = false
         }
     }
+
 
 }

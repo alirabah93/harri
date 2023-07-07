@@ -5,6 +5,13 @@
 
     <data>
 
+        <import type="com.smartherd.pokemon.list.PokemonListViewModel" />
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="PokemonListViewModel" />
+
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -60,8 +67,7 @@
                 android:layout_height="match_parent"
                 android:padding="16dp"
                 android:scrollbars="vertical"
-                android:visibility="visible"
-                app:spanCount="@integer/span_count"
+                android:visibility="@{viewModel.viewState.equals(`list`) ? View.VISIBLE : View.GONE}"
                 tools:listitem="@layout/list_item" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -78,16 +84,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/no_items_found"
-                android:visibility="gone"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:visibility="@{viewModel.viewState.equals(`empty`) ? View.VISIBLE : View.GONE}" />
 
             <TextView
                 android:id="@+id/errorTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/error_loading_pokemon_list"
-                android:visibility="gone"
-                android:textSize="18sp" />
+                android:text="@{viewModel.error}"
+                android:textSize="18sp"
+                android:visibility="@{viewModel.viewState.equals(`error`) ? View.VISIBLE : View.GONE}"
+                tools:text="@string/error_loading_pokemon_list" />
 
         </FrameLayout>
 
