@@ -37,10 +37,6 @@ class PokemonListAdapter(private var pokemonList: List<PokemonData>,
                     false
                 )
                 PokemonListViewHolder(binding, onPokemonItemClicked)
-//                PokemonViewHolder(
-//                    DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.list_item, parent, false),
-//                    onPokemonItemClicked
-//                )
             }
 
             VIEW_TYPE_LOAD_MORE -> {
@@ -68,14 +64,6 @@ class PokemonListAdapter(private var pokemonList: List<PokemonData>,
         when (getItemViewType(position)) {
             VIEW_TYPE_POKEMON -> {
                 (holder as PokemonListViewHolder).bindPokemon(pokemonList[position])
-                holder.itemView.setOnClickListener { v ->
-                    val context = v.context
-                    val selectedPokemon = pokemonList[position]
-                    val intent = Intent(context, PokemonDetailActivity::class.java).apply {
-                        putExtra(PokemonDetailActivity.ARG_SELECTED_POKEMON_ID, selectedPokemon.id)
-                    }
-                    context.startActivity(intent)
-                }
             }
 
             VIEW_TYPE_LOAD_MORE -> {

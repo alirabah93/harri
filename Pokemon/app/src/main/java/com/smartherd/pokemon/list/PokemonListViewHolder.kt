@@ -1,5 +1,6 @@
 package com.smartherd.pokemon.list
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
@@ -15,14 +16,17 @@ class PokemonListViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     private val pokemonImage: ImageView = itemView.findViewById(R.id.pokemon_image)
     private val context: Context = itemView.context
+    private lateinit var pokemon: PokemonData
 
     init {
         binding.root.setOnClickListener{
-            onPokemonItemClicked
+            onPokemonItemClicked.invoke(pokemon)
         }
     }
 
+
     fun bindPokemon(pokemon: PokemonData) {
+        this.pokemon = pokemon
         binding.pokemon = pokemon
 
         val backgroundColor = PokemonTypeColor.fromTypeName(pokemon.typeName).getColor(context)
