@@ -15,6 +15,10 @@
             name="backgroundColor"
             type="int" />
 
+        <variable
+            name="imageUrl"
+            type="String" />
+
     </data>
 
     <androidx.cardview.widget.CardView
@@ -37,6 +41,7 @@
                 android:contentDescription="@string/pokemon_image"
                 android:scaleType="fitCenter"
                 android:background="@{backgroundColor}"
+                app:loadWithGlide="@{imageUrl}"
                 tools:ignore="ImageContrastCheck"
                 tools:srcCompat="@tools:sample/avatars" />
 

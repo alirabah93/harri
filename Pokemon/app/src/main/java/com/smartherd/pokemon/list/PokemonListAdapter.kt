@@ -1,7 +1,6 @@
 package com.smartherd.pokemon.list
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
@@ -10,16 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.data.PokemonRepository
 import com.smartherd.pokemon.databinding.ListItemBinding
-import com.smartherd.pokemon.detail.PokemonDetailActivity
 import com.smartherd.pokemon.models.PokemonData
 
 private const val VIEW_TYPE_POKEMON = 0
 private const val VIEW_TYPE_PROGRESSBAR = 1
 private const val VIEW_TYPE_LOAD_MORE = 2
 
-class PokemonListAdapter(private var pokemonList: List<PokemonData>,
-                         private val onPokemonItemClicked: (pokemon: PokemonData) -> Unit
-    ) :
+class PokemonListAdapter(
+    private var pokemonList: List<PokemonData>,
+    private val onPokemonItemClicked: (pokemon: PokemonData) -> Unit
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var positionChangeListener: OnPositionChangeListener? = null
