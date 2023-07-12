@@ -6,13 +6,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.smartherd.pokemon.R
 import com.smartherd.pokemon.databinding.DetailItemBinding
+import com.smartherd.pokemon.list.PokemonListViewHolder
 import com.smartherd.pokemon.models.PokemonStat
 
 
 class PokemonDetailAdapter(private var pokemonStatDetail: List<PokemonStat>) :
-    RecyclerView.Adapter<PokemonDetailViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PokemonDetailViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding: DetailItemBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.detail_item,
@@ -26,14 +27,9 @@ class PokemonDetailAdapter(private var pokemonStatDetail: List<PokemonStat>) :
         return pokemonStatDetail.size
     }
 
-    override fun onBindViewHolder(holder: PokemonDetailViewHolder, position: Int) {
-        val stat = pokemonStatDetail[position]
-        holder.bindPokemonDetail(stat)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        (holder as PokemonDetailViewHolder).bindPokemonDetail(pokemonStatDetail[position])
     }
 
-    fun setStats(stats: List<PokemonStat>) {
-        this.pokemonStatDetail = stats
-        notifyDataSetChanged()
-    }
 }
 
