@@ -18,6 +18,7 @@ class PokemonListViewModel : ViewModel() {
 
     private val _offset = MutableLiveData(0)
     val offset: LiveData<Int> get() = _offset
+
     fun setOffset(newOffset: Int) {
         _offset.value = newOffset
     }

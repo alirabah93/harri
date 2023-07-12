@@ -23,6 +23,12 @@ object PokemonRepository {
 
 
     fun loadPokemonPage(offset: Int, callback: PokemonCallback) {
+        // Check if cache has this page?
+        // load pokemons page from cache
+        // add pokemons in all pokemons list
+        // callback.onSuccess()
+
+
         if (allPokemons.size > offset) {
             callback.onSuccess(allPokemons)
             return
