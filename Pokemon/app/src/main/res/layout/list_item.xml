@@ -15,9 +15,6 @@
             name="backgroundColor"
             type="int" />
 
-        <variable
-            name="imageUrl"
-            type="String" />
 
     </data>
 
@@ -40,8 +37,8 @@
                 android:layout_height="100dp"
                 android:contentDescription="@string/pokemon_image"
                 android:scaleType="fitCenter"
-                android:background="@{backgroundColor}"
-                app:loadWithGlide="@{imageUrl}"
+                app:backgroundColor="@{pokemon.typeName}"
+                app:loadWithGlide="@{pokemon.imageUrl}"
                 tools:ignore="ImageContrastCheck"
                 tools:srcCompat="@tools:sample/avatars" />
 

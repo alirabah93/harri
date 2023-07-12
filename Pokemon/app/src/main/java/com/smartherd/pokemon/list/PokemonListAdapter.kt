@@ -18,8 +18,7 @@ private const val VIEW_TYPE_LOAD_MORE = 2
 class PokemonListAdapter(
     private var pokemonList: List<PokemonData>,
     private val onPokemonItemClicked: (pokemon: PokemonData) -> Unit
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var positionChangeListener: OnPositionChangeListener? = null
     private var loadMoreClickListener: OnLoadMoreClickListener? = null

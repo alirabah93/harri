@@ -22,13 +22,6 @@ class PokemonListViewHolder(
     fun bindPokemon(pokemon: PokemonData) {
         this.pokemon = pokemon
         binding.pokemon = pokemon
-
-        val backgroundColor =
-            PokemonTypeColor.fromTypeName(pokemon.typeName).getColor(itemView.context)
-        binding.backgroundColor = backgroundColor
-        binding.imageUrl = pokemon.imageUrl
-
-
     }
 
 }
