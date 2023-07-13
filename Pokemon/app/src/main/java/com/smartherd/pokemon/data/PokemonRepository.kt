@@ -1,6 +1,9 @@
 package com.smartherd.pokemon.data
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
+import com.smartherd.pokemon.cache.Cache
 import com.smartherd.pokemon.detail.PokemonDetailsCallback
 import com.smartherd.pokemon.list.PokemonCallback
 import com.smartherd.pokemon.models.Pokemon
@@ -13,6 +16,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@SuppressLint("StaticFieldLeak")
 object PokemonRepository {
 
     private val pokemonService: PokemonService =
@@ -20,13 +24,25 @@ object PokemonRepository {
     private val allPokemons = mutableListOf<PokemonData>()
     private val searchedPokemons = mutableListOf<PokemonData>()
     const val PAGE_LIMIT = 20
+    private lateinit var cacheContext: Context
+
+
+    fun setupCache(context: Context) {
+        Cache.setup(context)
+        cacheContext = context
+    }
 
 
     fun loadPokemonPage(offset: Int, callback: PokemonCallback) {
-        if (allPokemons.size > offset) {
-            callback.onSuccess(allPokemons)
+        val cacheKey = "pokemon_page_$offset"
+        val cachedPokemons = Cache.readPokemon(cacheKey)
+
+        if (cachedPokemons != null) {
+            allPokemons.addAll(cachedPokemons)
+            callback.onSuccess(cachedPokemons)
             return
         }
+
         pokemonService.getPokemonList(offset, PAGE_LIMIT)
             .enqueue(object : Callback<PokemonListResponse> {
                 override fun onResponse(
@@ -44,6 +60,7 @@ object PokemonRepository {
                                 if (pokemonsPage.size == pokemonList.size) {
                                     allPokemons.addAll(pokemonsPage)
                                     callback.onSuccess(pokemonsPage)
+                                    Cache.savePokemon(cacheKey, pokemonsPage)
                                 }
                             }
                         }

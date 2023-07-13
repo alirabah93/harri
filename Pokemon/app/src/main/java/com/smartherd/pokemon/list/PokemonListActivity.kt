@@ -34,6 +34,7 @@ class PokemonListActivity :
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_pokemon_list)
         setContentView(binding.root)
+        PokemonRepository.setupCache(applicationContext)
 
 
         viewModel = ViewModelProvider(this)[PokemonListViewModel::class.java]
@@ -51,7 +52,7 @@ class PokemonListActivity :
             } else {
                 pokemonListAdapter.addItems(pokemons)
             }
-            pokemonListAdapter.notifyItemRangeInserted(viewModel.offset.value!!, pokemons.size)
+//            pokemonListAdapter.notifyItemRangeInserted(viewModel.getOffset(), pokemons.size)
         }
 
         viewModel.error.observe(this) { error ->
@@ -63,7 +64,9 @@ class PokemonListActivity :
     override fun onReachedBottomList() {
         if (searchName.isEmpty()) {
             viewModel.loadPokemon()
+
         }
+
     }
 
     override fun onLoadMoreClick() {
