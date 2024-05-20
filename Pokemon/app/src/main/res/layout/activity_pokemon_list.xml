@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.smartherd.pokemon.list.PokemonListViewModel" />
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="PokemonListViewModel" />
+
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".list.PokemonListActivity">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/backgroundColor"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                app:title="@string/app_name">
+
+                <EditText
+                    android:id="@+id/search_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/edit_text_bg"
+                    android:drawableStart="@drawable/baseline_search_24"
+                    android:drawablePadding="8dp"
+                    android:hint="@string/search_pokemon"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:textColorHint="#757575"
+                    tools:ignore="VisualLintTextFieldSize" />
+
+            </com.google.android.material.appbar.MaterialToolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pokemon_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:scrollbars="vertical"
+                android:visibility="@{viewModel.viewState.equals(`list`) ? View.VISIBLE : View.GONE}"
+                tools:listitem="@layout/list_item" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <FrameLayout
+            android:id="@+id/emptyErrorContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_anchor="@id/swipe_refresh_layout"
+            app:layout_anchorGravity="center">
+
+            <TextView
+                android:id="@+id/emptyTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_items_found"
+                android:textSize="18sp"
+                android:visibility="@{viewModel.viewState.equals(`empty`) ? View.VISIBLE : View.GONE}" />
+
+            <TextView
+                android:id="@+id/errorTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.error}"
+                android:textSize="18sp"
+                android:visibility="@{viewModel.viewState.equals(`error`) ? View.VISIBLE : View.GONE}"
+                tools:text="@string/error_loading_pokemon_list" />
+
+        </FrameLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:minWidth="50dp"
+                android:minHeight="50dp"
+                android:visibility="invisible" />
+        </RelativeLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

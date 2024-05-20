@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="pokemonDetailViewModel"
+            type="com.smartherd.pokemon.detail.PokemonDetailViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context=".detail.PokemonDetailActivity">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:navigationIconTint="#FFFFFF"
+                app:title="Pokemon Detail"
+                app:titleTextColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/pokemon_image"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:contentDescription="@string/pokemon_image"
+                android:scaleType="fitCenter"
+                tools:ignore="ImageContrastCheck"
+                tools:srcCompat="@tools:sample/avatars" />
+<!--                app:imageUrl="@{detailViewModel.selectedPokemon.imageUrl}"-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/pokemon_weight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@{@string/pokemon_weight(pokemonDetailViewModel.selectedPokemon.weight)}"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/pokemon_height"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="@{@string/pokemon_height(pokemonDetailViewModel.selectedPokemon.height)}"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/app_bar_layout"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_anchor="@id/app_bar_layout"
+            app:layout_anchorGravity="bottom"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/pokemon_base_stats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center"
+                android:text="@string/base_stats"
+                android:textColor="#000000"
+                android:textSize="25sp" />
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="3">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/pokemon_detail_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp"
+                    android:scrollbars="vertical"
+                    android:visibility="visible"
+                    tools:detailitem="@layout/detail_item" />
+
+            </GridLayout>
+
+        </LinearLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

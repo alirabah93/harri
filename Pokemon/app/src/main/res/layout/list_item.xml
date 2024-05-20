@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="com.smartherd.pokemon.models.PokemonData" />
+        <import type="com.smartherd.pokemon.models.PokemonTypeColor" />
+
+        <variable
+            name="pokemon"
+            type="PokemonData" />
+
+        <variable
+            name="backgroundColor"
+            type="int" />
+
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/pokemon_image"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:contentDescription="@string/pokemon_image"
+                android:scaleType="fitCenter"
+                app:backgroundColor="@{pokemon.typeName}"
+                app:loadWithGlide="@{pokemon.imageUrl}"
+                tools:ignore="ImageContrastCheck"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/pokemon_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="@{pokemon.name}"
+                android:textAlignment="center"
+                android:textColor="#303030"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>
